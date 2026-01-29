@@ -1,71 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Black Signals</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      max-width: 820px;
-      margin: 48px auto;
-      padding: 0 16px;
-      line-height: 1.55;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #ffffff;
       color: #111;
-      background: #fff;
+      max-width: 720px;
+      margin: 60px auto;
+      padding: 0 20px;
+      line-height: 1.55;
     }
-    h1 { font-size: 2rem; margin-bottom: 6px; }
-    h2 { font-size: 1.15rem; margin-top: 28px; }
-    p { margin: 10px 0; }
-    hr { border: 0; border-top: 1px solid #e6e6e6; margin: 28px 0; }
-    .subtle { color: #555; }
-    .signal { padding: 16px 0; border-top: 1px solid #eee; }
-    .signal:first-child { border-top: none; }
-    .signal a { font-weight: 600; color: #111; text-decoration: none; }
-    .signal a:hover { text-decoration: underline; }
-    .meta { color: #555; font-size: 0.95rem; margin-top: 4px; }
-    footer { margin-top: 40px; font-size: 0.9rem; color: #666; }
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+    }
+    .subtitle {
+      color: #444;
+      margin-bottom: 2rem;
+    }
+    .definition {
+      font-style: italic;
+      margin-bottom: 3rem;
+    }
+    .signal {
+      margin-bottom: 2.5rem;
+    }
+    .signal h2 {
+      font-size: 1.1rem;
+      margin-bottom: 0.4rem;
+    }
+    .signal p {
+      margin: 0.4rem 0;
+    }
+    .source a {
+      color: #0066cc;
+      text-decoration: none;
+    }
+    .source a:hover {
+      text-decoration: underline;
+    }
+    .footer {
+      margin-top: 4rem;
+      font-size: 0.9rem;
+      color: #555;
+    }
   </style>
 </head>
 <body>
 
-<h1>Black Signals</h1>
+  <h1>Black Signals</h1>
+  <div class="subtitle">
+    A lightweight signal aggregator for Black American news, analysis, and perspective.
+  </div>
 
-<p class="subtle">
-A lightweight signal aggregator for Black American news, analysis, and perspective.
-</p>
+  <div class="definition">
+    A signal is a verifiable pattern, shift, or omission that matters more than the headline built around it.
+  </div>
 
-<p>
-A <strong>signal</strong> is not a headline or a trend.
-It’s something that changes how power, incentives, or consequences are understood.
-</p>
+  <div class="signal">
+    <h2>Signal 01 — Power / Politics</h2>
+    <p>
+      Democratic leadership quietly deprioritizes voting-rights legislation in early 2026 strategy planning.
+      This is not rhetorical drift—it’s resource reallocation, which signals assumed leverage rather than negotiated urgency.
+    </p>
+    <p class="source">
+      Source:
+      <a href="https://democrats.house.gov" target="_blank">House Democratic Caucus</a>,
+      <a href="https://www.democrats.senate.gov" target="_blank">Senate Democrats</a>
+    </p>
+  </div>
 
-<p class="subtle">
-No ads. No feeds. No algorithm.<br />
-Signals invite interpretation, not endless argument. Say something new or move on.
-</p>
+  <div class="signal">
+    <h2>Signal 02 — Economy / Labor</h2>
+    <p>
+      January 2026 labor data shows Black unemployment rising while overall employment remains relatively flat.
+      When divergence appears before recession language, it usually marks where pressure is being absorbed first.
+    </p>
+    <p class="source">
+      Source:
+      <a href="https://www.bls.gov/news.release/empsit.htm" target="_blank">BLS Employment Situation</a>,
+      <a href="https://www.bls.gov/web/empsit/cpsee_e16.htm" target="_blank">BLS by Race</a>
+    </p>
+  </div>
 
-<hr />
+  <div class="signal">
+    <h2>Signal 03 — Media / Culture</h2>
+    <p>
+      Major platforms continue removing DEI language from public-facing creator policies without altering enforcement systems.
+      The signal is reputational risk management, not ideological reversal.
+    </p>
+    <p class="source">
+      Source:
+      <a href="https://transparency.meta.com" target="_blank">Meta Transparency</a>,
+      <a href="https://support.google.com/youtube/answer/9288567" target="_blank">YouTube Policy Updates</a>
+    </p>
+  </div>
 
-<h2>Signals</h2>
-<p class="subtle"><strong>Newest first.</strong> Updated as signals emerge.</p>
-
-<div class="signal">
-  <a href="#" target="_blank">[Signal title]</a>
-  <div class="meta">Source — Publication / Author</div>
-  <p><strong>Why this matters:</strong> One or two sentences explaining what this reveals or shifts.</p>
-</div>
-
-<div class="signal">
-  <a href="#" target="_blank">[Signal title]</a>
-  <div class="meta">Source — Publication / Author</div>
-  <p><strong>Why this matters:</strong> What becomes harder to ignore after reading this?</p>
-</div>
-
-<footer>
-  <hr />
-  <p>Black Signals is an independent project. A paid tier may follow.</p>
-</footer>
+  <div class="footer">
+    Comments will be allowed soon. Signals invite interpretation, not endless argument.
+    Say something new or move on.
+  </div>
 
 </body>
 </html>
