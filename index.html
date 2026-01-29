@@ -7,22 +7,65 @@
   <style>
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      max-width: 720px;
+      max-width: 820px;
       margin: 48px auto;
       padding: 0 16px;
-      line-height: 1.5;
+      line-height: 1.55;
       color: #111;
       background: #fff;
     }
-    h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-    p { margin-bottom: 1rem; }
-    small { color: #666; }
+    h1 { font-size: 2rem; margin-bottom: 6px; }
+    h2 { font-size: 1.15rem; margin-top: 28px; }
+    p { margin: 10px 0; }
+    hr { border: 0; border-top: 1px solid #e6e6e6; margin: 28px 0; }
+    .subtle { color: #555; }
+    .signal { padding: 16px 0; border-top: 1px solid #eee; }
+    .signal:first-child { border-top: none; }
+    .signal a { font-weight: 600; color: #111; text-decoration: none; }
+    .signal a:hover { text-decoration: underline; }
+    .meta { color: #555; font-size: 0.95rem; margin-top: 4px; }
+    footer { margin-top: 40px; font-size: 0.9rem; color: #666; }
   </style>
 </head>
 <body>
-  <h1>Black Signals</h1>
-  <p>A lightweight signal aggregator for Black American news, analysis, and perspective.</p>
-  <p><strong>Launching soon.</strong></p>
-  <small>No ads. No feeds. Just signals.</small>
+
+<h1>Black Signals</h1>
+
+<p class="subtle">
+A lightweight signal aggregator for Black American news, analysis, and perspective.
+</p>
+
+<p>
+A <strong>signal</strong> is not a headline or a trend.
+It’s something that changes how power, incentives, or consequences are understood.
+</p>
+
+<p class="subtle">
+No ads. No feeds. No algorithm.<br />
+Signals invite interpretation, not endless argument. Say something new or move on.
+</p>
+
+<hr />
+
+<h2>Signals</h2>
+<p class="subtle"><strong>Newest first.</strong> Updated as signals emerge.</p>
+
+<div class="signal">
+  <a href="#" target="_blank">[Signal title]</a>
+  <div class="meta">Source — Publication / Author</div>
+  <p><strong>Why this matters:</strong> One or two sentences explaining what this reveals or shifts.</p>
+</div>
+
+<div class="signal">
+  <a href="#" target="_blank">[Signal title]</a>
+  <div class="meta">Source — Publication / Author</div>
+  <p><strong>Why this matters:</strong> What becomes harder to ignore after reading this?</p>
+</div>
+
+<footer>
+  <hr />
+  <p>Black Signals is an independent project. A paid tier may follow.</p>
+</footer>
+
 </body>
 </html>
