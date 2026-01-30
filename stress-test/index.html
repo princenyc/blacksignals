@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BlackSignals: Stress Test</title>
+  <meta name="description" content="Stress-test claims before you repeat them. Facts, assumptions, falsifiers, verdict — with sources." />
+  <style>
+    :root{
+      --bg:#0b0b0b;
+      --panel:#111;
+      --text:#f2f2f2;
+      --muted:#b7b7b7;
+      --line:#242424;
+      --accent:#f2f2f2;
+      --danger:#ff4d4d;
+      --ok:#9be37a;
+      --warn:#ffd36a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.35;
+    }
+    a{color:var(--text); text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:3px;}
+    .wrap{max-width:980px; margin:0 auto; padding:28px 18px 60px;}
+    header{padding:10px 0 22px; border-bottom:1px solid var(--line); margin-bottom:22px;}
+    .kicker{color:var(--muted); font-size:13px; letter-spacing:.08em; text-transform:uppercase;}
+    h1{margin:8px 0 8px; font-size:28px;}
+    .sub{margin:0; color:var(--muted); max-width:70ch;}
+    .grid{display:grid; gap:16px; grid-template-columns: 1fr;}
+    @media(min-width:900px){ .grid{grid-template-columns: 1fr 1fr;} }
+    .card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px;
+    }
+    label{display:block; color:var(--muted); font-size:13px; margin-bottom:8px;}
+    textarea{
+      width:100%;
+      min-height:180px;
+      padding:12px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#0d0d0d;
+      color:var(--text);
+      resize:vertical;
+      outline:none;
+    }
+    textarea:focus{border-color:#3a3a3a;}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px;}
+    button{
+      cursor:pointer;
+      border:1px solid var(--line);
+      background:#0d0d0d;
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:600;
+    }
+    button:hover{border-color:#3a3a3a;}
+    .hint{color:var(--muted); font-size:13px;}
+    .out h2{margin:0 0 10px; font-size:16px;}
+    .section{padding:14px 0; border-top:1px solid var(--line);}
+    .section:first-of-type{border-top:none; padding-top:0;}
+    .pill{
+      display:inline-block;
+      padding:5px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      color:var(--muted);
+      font-size:12px;
+      margin-left:8px;
+    }
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+    ul{margin:10px 0 0 18px;}
+    .verdict{font-weight:800; font-size:15px;}
+    .small{font-size:12px; color:var(--muted);}
+    footer{margin-top:26px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:13px;}
+    .sources li{margin-bottom:8px;}
+    .tag{font-size:12px; color:var(--muted);}
+    .status{margin-left:auto; font-size:12px; color:var(--muted);}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="kicker">BlackSignals.org</div>
+      <h1>Stress Test</h1>
+      <p class="sub">Paste a claim, headline, paragraph, or argument you believe is true. This tool returns assumptions, evidence signals, a falsifier, a forced verdict, and sources so people can check it.</p>
+    </header>
+
+    <div class="grid">
+      <section class="card">
+        <label for="input">Claim / Argument</label>
+        <textarea id="input" placeholder="Example: “NYC is facing a fiscal crisis like 2008, so we need to cut public services.”"></textarea>
+        <div class="row">
+          <button id="run">Stress Test</button>
+          <button id="clear">Clear</button>
+          <span class="hint">MVP: output is demo-format now. Next step: wire to an API.</span>
+        </div>
+      </section>
+
+      <section class="card out" aria-live="polite">
+        <div class="row" style="margin-top:0;">
+          <h2 style="margin:0;">Output</h2>
+          <span class="status" id="status">Ready</span>
+        </div>
+
+        <div class="section">
+          <h2>1) The Claim (Cleaned)</h2>
+          <div id="claim" class="mono small">—</div>
+        </div>
+
+        <div class="section">
+          <h2>2) What Must Be True</h2>
+          <ul id="mustBeTrue" class="small"><li>—</li></ul>
+        </div>
+
+        <div class="section">
+          <h2>3) Evidence & Signals <span class="pill">with sources</span></h2>
+          <ul id="signals" class="small"><li>—</li></ul>
+        </div>
+
+        <div class="section">
+          <h2>4) Stress Test (Falsifier)</h2>
+          <div id="falsifier" class="small">—</div>
+        </div>
+
+        <div class="section">
+          <h2>5) Verdict</h2>
+          <div id="verdict" class="verdict">—</div>
+          <div class="small tag" id="verdictNote"></div>
+        </div>
+
+        <div class="section">
+          <h2>6) Sources</h2>
+          <ul id="sources" class="small sources"><li>—</li></ul>
+          <div class="small">Sources are provided so you can verify or disagree. This tool clarifies stakes; it doesn’t “settle” debate.</div>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      <div><strong>Note:</strong> This is an MVP. It will sometimes say “unclear” if evidence is weak or missing.</div>
+      <div class="small" style="margin-top:8px;">An early Chartreuse Explosives project.</div>
+    </footer>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function setDemoOutput(text) {
+      // Demo output: shows structure immediately. Later replaced by API response.
+      $("claim").textContent = text ? `Core claim: ${text.trim().slice(0, 240)}${text.trim().length > 240 ? "…" : ""}` : "—";
+
+      $("mustBeTrue").innerHTML = `
+        <li>Key terms are defined consistently (not shifting mid-argument).</li>
+        <li>The claim’s causal links are real, not assumed.</li>
+        <li>There’s data that could falsify the claim—and we’d accept it if it appears.</li>
+      `;
+
+      $("signals").innerHTML = `
+        <li>Evidence quality: <span class="mono">unknown (MVP)</span> — needs sources and dataset checks.</li>
+        <li>Incentives: <span class="mono">unknown (MVP)</span> — who benefits if this framing wins?</li>
+        <li>Emotional leverage: <span class="mono">unknown (MVP)</span> — fear, disgust, humiliation, tribal status.</li>
+      `;
+
+      $("falsifier").textContent =
+        "If this claim is wrong, the first thing we’d expect to see is a strong, repeated counterexample in credible data (not anecdotes).";
+
+      $("verdict").textContent = "Indeterminate — missing critical data.";
+      $("verdictNote").textContent = "MVP output. Next: compute this from evidence + sources.";
+
+      $("sources").innerHTML = `
+        <li><span class="mono">[placeholder]</span> Add reputable sources here once API wiring is done (e.g., BLS, Census, Pew, Brookings, IGM, CRS, GAO, etc.).</li>
+      `;
+    }
+
+    async function run() {
+      const input = $("input").value.trim();
+      $("status").textContent = "Running…";
+
+      // MVP behavior: demo output immediately.
+      // Next step: replace this block with a fetch() call to your backend.
+      setDemoOutput(input);
+      $("status").textContent = "Done (demo)";
+    }
+
+    $("run").addEventListener("click", run);
+    $("clear").addEventListener("click", () => {
+      $("input").value = "";
+      $("status").textContent = "Ready";
+      $("claim").textContent = "—";
+      $("mustBeTrue").innerHTML = "<li>—</li>";
+      $("signals").innerHTML = "<li>—</li>";
+      $("falsifier").textContent = "—";
+      $("verdict").textContent = "—";
+      $("verdictNote").textContent = "";
+      $("sources").innerHTML = "<li>—</li>";
+    });
+
+    // Optional: run demo on load if you want a filled example:
+    // $("input").value = "Example claim here…";
+    // run();
+  </script>
+</body>
+</html>
