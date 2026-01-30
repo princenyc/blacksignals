@@ -9,6 +9,7 @@
     :root{
       --bg:#0b0b0b;
       --panel:#111;
+      --panel2:#0f0f0f;
       --text:#f2f2f2;
       --muted:#b7b7b7;
       --line:#242424;
@@ -16,272 +17,560 @@
       --danger:#ff4d4d;
       --ok:#9be37a;
       --warn:#ffd36a;
+      --chip:#1a1a1a;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
-    *{box-sizing:border-box}
+    *{ box-sizing:border-box; }
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
       background:var(--bg);
       color:var(--text);
+      font-family:var(--sans);
       line-height:1.35;
     }
-    a{color:var(--text); text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:3px;}
-    .wrap{max-width:980px; margin:0 auto; padding:28px 18px 60px;}
-    header{padding:10px 0 22px; border-bottom:1px solid var(--line); margin-bottom:22px;}
-    .kicker{color:var(--muted); font-size:13px; letter-spacing:.08em; text-transform:uppercase;}
-    h1{margin:8px 0 8px; font-size:28px;}
-    .sub{margin:0; color:var(--muted); max-width:70ch;}
-    .grid{display:grid; gap:16px; grid-template-columns: 1fr;}
-    @media(min-width:900px){ .grid{grid-template-columns: 1fr 1fr;} }
+    a{ color:var(--text); text-decoration:underline; text-underline-offset:3px; }
+    .wrap{ max-width:1200px; margin:0 auto; padding:28px 18px 60px; }
+    .top{
+      display:flex; align-items:flex-end; justify-content:space-between; gap:16px;
+      margin-bottom:14px;
+    }
+    h1{ margin:0; font-size:22px; letter-spacing:.3px; }
+    .sub{ color:var(--muted); margin-top:6px; max-width:820px; }
+    .back{ display:inline-block; margin:10px 0 18px; color:var(--muted); }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap:18px;
+      align-items:start;
+    }
+    @media (max-width: 950px){
+      .grid{ grid-template-columns: 1fr; }
+    }
     .card{
-      background:var(--panel);
       border:1px solid var(--line);
+      background:linear-gradient(180deg, var(--panel), var(--panel2));
       border-radius:14px;
       padding:16px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.02) inset;
     }
-    label{display:block; color:var(--muted); font-size:13px; margin-bottom:8px;}
+    .label{
+      font-size:12px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      margin-bottom:10px;
+    }
     textarea{
       width:100%;
-      min-height:180px;
-      padding:12px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:#0d0d0d;
-      color:var(--text);
+      min-height:240px;
       resize:vertical;
+      border-radius:12px;
+      background:#0c0c0c;
+      border:1px solid var(--line);
+      color:var(--text);
+      padding:12px 12px;
+      font-family:var(--mono);
+      font-size:14px;
       outline:none;
     }
-    textarea:focus{border-color:#3a3a3a;}
-    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px;}
+    textarea:focus{ border-color:#3a3a3a; }
+    .row{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+      margin-top:12px;
+    }
     button{
-      cursor:pointer;
       border:1px solid var(--line);
-      background:#0d0d0d;
+      background:#0f0f0f;
       color:var(--text);
-      padding:10px 12px;
-      border-radius:12px;
+      padding:10px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:600;
+      letter-spacing:.2px;
+    }
+    button:hover{ border-color:#3a3a3a; }
+    button.primary{
+      background:#141414;
+      border-color:#2a2a2a;
+    }
+    .hint{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .outHead{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .status{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .status b{ color:var(--text); }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid var(--line);
+      background:#0c0c0c;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .dot{ width:8px; height:8px; border-radius:999px; background:var(--muted); }
+    .dot.ok{ background:var(--ok); }
+    .dot.warn{ background:var(--warn); }
+    .dot.bad{ background:var(--danger); }
+
+    .section{
+      border-top:1px solid var(--line);
+      padding-top:14px;
+      margin-top:14px;
+    }
+    .section h2{
+      margin:0 0 10px 0;
+      font-size:16px;
+      letter-spacing:.2px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .chip{
+      border:1px solid var(--line);
+      background:var(--chip);
+      color:var(--muted);
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:12px;
       font-weight:600;
     }
-    button:hover{border-color:#3a3a3a;}
-    .hint{color:var(--muted); font-size:13px;}
-    .out h2{margin:0 0 10px; font-size:16px;}
-    .section{padding:14px 0; border-top:1px solid var(--line);}
-    .section:first-of-type{border-top:none; padding-top:0;}
-    .pill{
-      display:inline-block;
-      padding:5px 10px;
+    ul{ margin:0; padding-left:18px; }
+    li{ margin:6px 0; }
+    code.inline{
+      font-family:var(--mono);
+      background:#0c0c0c;
       border:1px solid var(--line);
-      border-radius:999px;
+      padding:2px 6px;
+      border-radius:6px;
+      font-size:12px;
+      color:var(--text);
+    }
+    .kv{
+      display:grid;
+      grid-template-columns: 140px 1fr;
+      gap:10px;
+      margin-top:8px;
+      font-size:14px;
+    }
+    .k{ color:var(--muted); }
+    .v{ color:var(--text); }
+    .verdict{
+      font-weight:800;
+      font-size:16px;
+      margin-bottom:6px;
+    }
+    .verdict.ok{ color:var(--ok); }
+    .verdict.warn{ color:var(--warn); }
+    .verdict.bad{ color:var(--danger); }
+
+    .sources{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .src{
+      border:1px solid var(--line);
+      background:#0c0c0c;
+      border-radius:12px;
+      padding:10px 12px;
+    }
+    .srcTop{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .srcTitle{
+      font-weight:700;
+      font-size:13.5px;
+      margin:0;
+    }
+    .srcUrl{
       color:var(--muted);
       font-size:12px;
-      margin-left:8px;
+      margin-top:4px;
+      word-break:break-all;
     }
-    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
-    ul{margin:10px 0 0 18px;}
-    .verdict{font-weight:800; font-size:15px;}
-    .small{font-size:12px; color:var(--muted);}
-    footer{margin-top:26px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:13px;}
-    .sources li{margin-bottom:8px;}
-    .tag{font-size:12px; color:var(--muted);}
-    .status{margin-left:auto; font-size:12px; color:var(--muted);}
-    .navline{margin-top:10px; display:flex; gap:14px; flex-wrap:wrap;}
+    .srcNote{
+      color:var(--muted);
+      font-size:12.5px;
+      margin-top:8px;
+    }
+    .smallmuted{ color:var(--muted); font-size:12px; margin-top:8px; }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <header>
-      <div class="kicker">BlackSignals.org</div>
-      <h1>Stress Test</h1>
-      <p class="sub">
-        Paste a claim, headline, paragraph, or argument you believe is true. This tool returns assumptions, evidence signals,
-        a falsifier, a forced verdict, and sources so people can check it.
-      </p>
-      <div class="navline">
-        <a href="/">← Back to BlackSignals</a>
+    <div class="top">
+      <div>
+        <h1>BlackSignals: Stress Test</h1>
+        <div class="sub">
+          Paste a claim, headline, paragraph, or argument you believe is true. This tool returns assumptions, evidence signals,
+          a falsifier, a forced verdict, and sources so people can check it.
+        </div>
+        <a class="back" href="/">← Back to BlackSignals</a>
       </div>
-    </header>
-
-    <div class="grid">
-      <section class="card">
-        <label for="input">Claim / Argument</label>
-        <textarea id="input" placeholder="Example: “NYC is facing a fiscal crisis like 2008, so we need to cut public services.”"></textarea>
-        <div class="row">
-          <button id="run">Stress Test</button>
-          <button id="clear">Clear</button>
-          <span class="hint">Now wired for an API. If the API is offline, it falls back to demo output.</span>
-        </div>
-      </section>
-
-      <section class="card out" aria-live="polite">
-        <div class="row" style="margin-top:0;">
-          <h2 style="margin:0;">Output</h2>
-          <span class="status" id="status">Ready</span>
-        </div>
-
-        <div class="section">
-          <h2>1) The Claim (Cleaned)</h2>
-          <div id="claim" class="mono small">—</div>
-        </div>
-
-        <div class="section">
-          <h2>2) What Must Be True</h2>
-          <ul id="mustBeTrue" class="small"><li>—</li></ul>
-        </div>
-
-        <div class="section">
-          <h2>3) Evidence & Signals <span class="pill">with sources</span></h2>
-          <ul id="signals" class="small"><li>—</li></ul>
-        </div>
-
-        <div class="section">
-          <h2>4) Stress Test (Falsifier)</h2>
-          <div id="falsifier" class="small">—</div>
-        </div>
-
-        <div class="section">
-          <h2>5) Verdict</h2>
-          <div id="verdict" class="verdict">—</div>
-          <div class="small tag" id="verdictNote"></div>
-        </div>
-
-        <div class="section">
-          <h2>6) Sources</h2>
-          <ul id="sources" class="small sources"><li>—</li></ul>
-          <div class="small">Sources are provided so you can verify or disagree. This tool clarifies stakes; it doesn’t “settle” debate.</div>
-        </div>
-      </section>
+      <div class="badge" title="API status for this page">
+        <span id="dot" class="dot warn"></span>
+        <span id="apiStatus">API: unknown</span>
+      </div>
     </div>
 
-    <footer>
-      <div><strong>Note:</strong> This tool may return “unclear” when evidence is weak or missing.</div>
-      <div class="small" style="margin-top:8px;">An early Chartreuse Explosives project.</div>
-    </footer>
+    <div class="grid">
+      <div class="card">
+        <div class="label">Claim / Argument</div>
+        <textarea id="input" spellcheck="false" placeholder="Example:
+NYC is facing a fiscal crisis like 2008.
+https://www.nyc.gov/site/omb/index.page
+https://comptroller.nyc.gov/"></textarea>
+
+        <div class="row">
+          <button id="run" class="primary">Stress Test</button>
+          <button id="clear">Clear</button>
+        </div>
+
+        <div class="hint">
+          Tip: include 1–5 URLs (official reports, datasets, reputable coverage). The tool will treat them as “receipts.”
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="outHead">
+          <div style="font-weight:800; font-size:16px;">Output</div>
+          <div class="status" id="runStatus">Idle</div>
+        </div>
+
+        <div id="output">
+          <div class="smallmuted">Run a stress test to see results.</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    const $ = (id) => document.getElementById(id);
+    // =========================
+    // CONFIG
+    // =========================
 
-    // TODO: replace with your real endpoint once we deploy it.
-    // If you later set up api.blacksignals.org, this becomes:
+    // Your Worker endpoint (POST /stress-test)
+    // Later, if you map a subdomain like api.blacksignals.org -> this worker, switch to:
     // const API_URL = "https://api.blacksignals.org/stress-test";
     const API_URL = "https://blacksignals-api.princecampbellnyc.workers.dev/stress-test";
 
-    function escapeHtml(str) {
+    // =========================
+    // HELPERS
+    // =========================
+    const $ = (id) => document.getElementById(id);
+
+    function setApiBadge(state, text){
+      const dot = $("dot");
+      dot.className = "dot " + (state || "warn");
+      $("apiStatus").textContent = text;
+    }
+
+    function escapeHtml(str){
       return String(str)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll("\"","&quot;")
+        .replaceAll("'","&#039;");
     }
 
-    function setDemoOutput(text) {
-      $("claim").textContent = text
-        ? `Core claim: ${text.trim().slice(0, 240)}${text.trim().length > 240 ? "…" : ""}`
-        : "—";
-
-      $("mustBeTrue").innerHTML = `
-        <li>Key terms are defined consistently (not shifting mid-argument).</li>
-        <li>The claim’s causal links are real, not assumed.</li>
-        <li>There’s data that could falsify the claim—and we’d accept it if it appears.</li>
-      `;
-
-      $("signals").innerHTML = `
-        <li>Evidence quality: <span class="mono">unknown (MVP)</span> — needs sources and dataset checks.</li>
-        <li>Incentives: <span class="mono">unknown (MVP)</span> — who benefits if this framing wins?</li>
-        <li>Emotional leverage: <span class="mono">unknown (MVP)</span> — fear, disgust, humiliation, tribal status.</li>
-      `;
-
-      $("falsifier").textContent =
-        "If this claim is wrong, the first thing we’d expect to see is a strong, repeated counterexample in credible data (not anecdotes).";
-
-      $("verdict").textContent = "Indeterminate — missing critical data.";
-      $("verdictNote").textContent = "Demo output. Next: compute this from evidence + sources.";
-
-      $("sources").innerHTML = `
-        <li><span class="mono">[placeholder]</span> Once API wiring is done, this section will contain 3–6 reputable links.</li>
-      `;
+    function extractUrls(text){
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      const matches = text.match(urlRegex) || [];
+      // Dedup while preserving order
+      const seen = new Set();
+      const urls = [];
+      for (const u of matches){
+        const clean = u.trim().replace(/[)\],.]+$/,""); // trim common trailing punctuation
+        if (!seen.has(clean)){
+          seen.add(clean);
+          urls.push(clean);
+        }
+      }
+      return urls;
     }
 
-    function applyApiOutput(data) {
-      $("claim").textContent = data.claim_cleaned ? escapeHtml(data.claim_cleaned) : "—";
+    function stripUrls(text){
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      return text.replace(urlRegex, "").replace(/\n{3,}/g, "\n\n").trim();
+    }
 
-      const must = Array.isArray(data.must_be_true) && data.must_be_true.length
-        ? data.must_be_true
-        : ["—"];
-      $("mustBeTrue").innerHTML = must
-        .map(x => `<li>${escapeHtml(x)}</li>`)
-        .join("");
+    function verdictClass(v){
+      const s = String(v || "").toLowerCase();
+      if (s.includes("true") || s.includes("supported") || s.includes("likely") || s.includes("strong")) return "ok";
+      if (s.includes("false") || s.includes("debunk") || s.includes("unsupported") || s.includes("misleading")) return "bad";
+      if (s.includes("indeterminate") || s.includes("unclear") || s.includes("pending") || s.includes("mixed")) return "warn";
+      return "warn";
+    }
 
-      const sigs = Array.isArray(data.signals) && data.signals.length
-        ? data.signals
-        : [{ text: "—", confidence: "n/a", url: "#" }];
+    function normList(x){
+      if (!x) return [];
+      if (Array.isArray(x)) return x;
+      return [x];
+    }
 
-      $("signals").innerHTML = sigs.map(s => {
-        const txt = escapeHtml(s.text || "—");
-        const conf = escapeHtml(s.confidence || "n/a");
-        const url = s.url ? String(s.url) : "#";
-        const link = url && url !== "#"
-          ? `<a href="${url}" target="_blank" rel="noopener">source</a>`
-          : `<span class="mono">no source</span>`;
-        return `<li>${txt} <span class="mono">(${conf})</span> — ${link}</li>`;
+    // =========================
+    // RENDERING
+    // =========================
+    function renderResponse(data, meta){
+      const cleaned = data?.claim_cleaned ?? data?.claim ?? "";
+      const metrics = normList(data?.metrics);
+      const must = normList(data?.must_be_true);
+      const signals = normList(data?.signals);
+      const falsifier = data?.falsifier ?? "";
+      const verdict = data?.verdict ?? "";
+      const sources = normList(data?.sources);
+
+      const vClass = verdictClass(verdict);
+
+      let html = "";
+
+      // 1) Claim
+      html += `
+        <div class="section" style="border-top:none; padding-top:0; margin-top:0;">
+          <h2>1) The Claim (Cleaned)</h2>
+          <div style="font-family:var(--mono); white-space:pre-wrap;">${escapeHtml(cleaned || "—")}</div>
+        </div>
+      `;
+
+      // 2) Metrics
+      html += `
+        <div class="section">
+          <h2>2) Metrics Required <span class="chip">forced</span></h2>
+          ${metrics.length ? renderMetrics(metrics, sources) : `<div class="smallmuted">No metrics returned (yet).</div>`}
+        </div>
+      `;
+
+      // 3) Must be true
+      html += `
+        <div class="section">
+          <h2>3) What Must Be True</h2>
+          ${must.length ? `<ul>${must.map(x => `<li>${escapeHtml(String(x))}</li>`).join("")}</ul>` : `<div class="smallmuted">—</div>`}
+        </div>
+      `;
+
+      // 4) Evidence & Signals
+      html += `
+        <div class="section">
+          <h2>4) Evidence & Signals <span class="chip">with citations</span></h2>
+          ${signals.length ? renderSignals(signals, sources) : `<div class="smallmuted">—</div>`}
+        </div>
+      `;
+
+      // 5) Falsifier
+      html += `
+        <div class="section">
+          <h2>5) Stress Test (Falsifier)</h2>
+          <div>${escapeHtml(falsifier || "—")}</div>
+        </div>
+      `;
+
+      // 6) Verdict
+      html += `
+        <div class="section">
+          <h2>6) Verdict</h2>
+          <div class="verdict ${vClass}">${escapeHtml(verdict || "—")}</div>
+          <div class="smallmuted">${escapeHtml(meta || "")}</div>
+        </div>
+      `;
+
+      // 7) Sources
+      html += `
+        <div class="section">
+          <h2>7) Sources</h2>
+          ${sources.length ? renderSources(sources) : `<div class="smallmuted">No sources returned.</div>`}
+        </div>
+      `;
+
+      $("output").innerHTML = html;
+    }
+
+    function renderMetrics(metrics, sources){
+      // Accept objects like: { metric, measured_by, cite:[ids] } or strings
+      const items = metrics.map(m => {
+        if (m && typeof m === "object"){
+          const metric = escapeHtml(m.metric ?? "—");
+          const measuredBy = escapeHtml(m.measured_by ?? "");
+          const cite = Array.isArray(m.cite) ? m.cite : [];
+          return `
+            <li>
+              <b>${metric}</b>${measuredBy ? ` — ${measuredBy}` : ""}
+              ${cite.length ? ` ${renderCites(cite, sources)}` : ""}
+            </li>
+          `;
+        }
+        return `<li>${escapeHtml(String(m))}</li>`;
       }).join("");
 
-      $("falsifier").textContent = data.falsifier ? escapeHtml(data.falsifier) : "—";
-
-      $("verdict").textContent = data.verdict?.label ? escapeHtml(data.verdict.label) : "—";
-      $("verdictNote").textContent = data.verdict?.note ? escapeHtml(data.verdict.note) : "";
-
-      const sources = Array.isArray(data.sources) && data.sources.length
-        ? data.sources
-        : [{ title: "—", url: "#" }];
-
-      $("sources").innerHTML = sources.map(src => {
-        const title = escapeHtml(src.title || "Source");
-        const url = src.url ? String(src.url) : "#";
-        if (!url || url === "#") return `<li>${title}</li>`;
-        return `<li><a href="${url}" target="_blank" rel="noopener">${title}</a></li>`;
-      }).join("");
+      return `<ul>${items}</ul>`;
     }
 
-    async function run() {
-      const input = $("input").value.trim();
-      if (!input) return;
+    function renderSignals(signals, sources){
+      // Accept objects like: { text, confidence, cite:[ids] } or strings
+      const items = signals.map(s => {
+        if (s && typeof s === "object"){
+          const text = escapeHtml(s.text ?? "—");
+          const conf = escapeHtml((s.confidence ?? "").toString());
+          const cite = Array.isArray(s.cite) ? s.cite : [];
+          const confLabel = conf ? ` <span class="chip">${conf}</span>` : "";
+          const citeLabel = cite.length ? ` ${renderCites(cite, sources)}` : "";
+          return `<li>${text}${confLabel}${citeLabel}</li>`;
+        }
+        return `<li>${escapeHtml(String(s))}</li>`;
+      }).join("");
 
-      $("status").textContent = "Running…";
+      return `<ul>${items}</ul>`;
+    }
 
-      try {
+    function renderCites(citeIds, sources){
+      // citeIds = [0,2] where sources[0], sources[2]
+      const safe = citeIds
+        .map(n => Number.isFinite(n) ? n : null)
+        .filter(n => n !== null);
+
+      if (!safe.length) return "";
+
+      const links = safe.map(n => {
+        const src = sources?.[n];
+        const url = src?.url || "";
+        const label = `source ${n+1}`;
+        if (url){
+          return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+        }
+        return label;
+      });
+
+      return `<span class="chip">${links.join(", ")}</span>`;
+    }
+
+    function renderSources(sources){
+      const cards = sources.map((s, idx) => {
+        const title = escapeHtml(s?.title || `Source ${idx+1}`);
+        const url = escapeHtml(s?.url || "");
+        const note = escapeHtml(s?.note || s?.snippet || "");
+        return `
+          <div class="src">
+            <div class="srcTop">
+              <div>
+                <div class="srcTitle">${idx+1}) ${title}</div>
+                ${url ? `<div class="srcUrl"><a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a></div>` : ""}
+              </div>
+            </div>
+            ${note ? `<div class="srcNote">${note}</div>` : ""}
+          </div>
+        `;
+      }).join("");
+
+      return `<div class="sources">${cards}</div>`;
+    }
+
+    // =========================
+    // DEMO FALLBACK
+    // =========================
+    function demoResponseFrom(text){
+      const claim = stripUrls(text) || text.trim() || "—";
+      return {
+        claim_cleaned: claim,
+        metrics: [
+          { metric: "Define what 'like 2008' means in measurable terms", measured_by: "Pick 2–4 numeric indicators + time window", cite: [] },
+          { metric: "Pick a baseline and compare deltas", measured_by: "Same units, same window, comparable denominators", cite: [] }
+        ],
+        must_be_true: [
+          "Key terms are defined consistently (no moving goalposts).",
+          "The causal link is testable (not just vibes or correlation).",
+          "Evidence that could falsify the claim would be accepted if found."
+        ],
+        signals: [
+          { text: "If this is a fiscal claim, prioritize audited budgets, bond disclosures, and official financial statements (not rhetoric).", confidence: "high", cite: [] },
+          { text: "If sources do not measure the claim (metrics/time window), verdict should be Indeterminate, not 'plausible'.", confidence: "high", cite: [] }
+        ],
+        falsifier: "If the claim is wrong, official financial statements / budget docs and market indicators should contradict the framing over the defined time window.",
+        verdict: "Indeterminate — add receipts that actually measure the claim.",
+        sources: []
+      };
+    }
+
+    // =========================
+    // RUN
+    // =========================
+    async function run(){
+      const raw = $("input").value || "";
+      const claimText = stripUrls(raw);
+      const receipts = extractUrls(raw);
+
+      if (!raw.trim()){
+        $("runStatus").textContent = "Add a claim first.";
+        return;
+      }
+
+      $("runStatus").textContent = "Running…";
+      setApiBadge("warn", "API: calling…");
+
+      // Payload shape expected by your Worker:
+      // If your Worker uses different keys, change them here (ONE place).
+      const payload = {
+        claim: claimText || raw.trim(),
+        receipts: receipts
+      };
+
+      try{
         const res = await fetch(API_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: input })
+          headers: { "Content-Type":"application/json" },
+          body: JSON.stringify(payload)
         });
 
-        if (!res.ok) throw new Error("API error");
+        // CORS errors won’t reach here; fetch would throw.
+        const data = await res.json().catch(() => null);
 
-        const data = await res.json();
-        applyApiOutput(data);
-        $("status").textContent = "Done";
-      } catch (e) {
-        $("status").textContent = "API offline — demo output";
-        setDemoOutput(input);
+        if (!res.ok || !data){
+          // API is reachable but returned error or non-JSON
+          setApiBadge("bad", "API: error (fallback)");
+          $("runStatus").textContent = "API error — showing demo output.";
+          renderResponse(demoResponseFrom(raw), "API error / fallback demo output.");
+          return;
+        }
+
+        setApiBadge("ok", "API: live");
+        $("runStatus").textContent = "Done";
+        renderResponse(data, receipts.length ? "Receipts detected — citations should appear on signals/metrics." : "No receipts detected — expect Indeterminate until sources measure the claim.");
+      }catch(e){
+        setApiBadge("bad", "API: offline (fallback)");
+        $("runStatus").textContent = "API offline — showing demo output.";
+        renderResponse(demoResponseFrom(raw), "API offline / fallback demo output.");
       }
     }
 
-    $("run").addEventListener("click", run);
-
-    $("clear").addEventListener("click", () => {
+    function clearAll(){
       $("input").value = "";
-      $("status").textContent = "Ready";
-      $("claim").textContent = "—";
-      $("mustBeTrue").innerHTML = "<li>—</li>";
-      $("signals").innerHTML = "<li>—</li>";
-      $("falsifier").textContent = "—";
-      $("verdict").textContent = "—";
-      $("verdictNote").textContent = "";
-      $("sources").innerHTML = "<li>—</li>";
-    });
+      $("output").innerHTML = `<div class="smallmuted">Run a stress test to see results.</div>`;
+      $("runStatus").textContent = "Idle";
+    }
+
+    // Wire up
+    $("run").addEventListener("click", run);
+    $("clear").addEventListener("click", clearAll);
+
+    // Quick health check (optional): attempt OPTIONS/POST not needed; just mark unknown until first run.
+    setApiBadge("warn", "API: unknown");
   </script>
 </body>
 </html>
