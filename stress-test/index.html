@@ -150,24 +150,6 @@
     }
     ul{ margin:0; padding-left:18px; }
     li{ margin:6px 0; }
-    code.inline{
-      font-family:var(--mono);
-      background:#0c0c0c;
-      border:1px solid var(--line);
-      padding:2px 6px;
-      border-radius:6px;
-      font-size:12px;
-      color:var(--text);
-    }
-    .kv{
-      display:grid;
-      grid-template-columns: 140px 1fr;
-      gap:10px;
-      margin-top:8px;
-      font-size:14px;
-    }
-    .k{ color:var(--muted); }
-    .v{ color:var(--text); }
     .verdict{
       font-weight:800;
       font-size:16px;
@@ -236,8 +218,7 @@
         <div class="label">Claim / Argument</div>
         <textarea id="input" spellcheck="false" placeholder="Example:
 NYC is facing a fiscal crisis like 2008.
-https://www.nyc.gov/site/omb/index.page
-https://comptroller.nyc.gov/"></textarea>
+(or paste a paragraph, or paste a URL)"></textarea>
 
         <div class="row">
           <button id="run" class="primary">Stress Test</button>
@@ -245,7 +226,7 @@ https://comptroller.nyc.gov/"></textarea>
         </div>
 
         <div class="hint">
-          Tip: include 1–5 URLs (official reports, datasets, reputable coverage). The tool will treat them as “receipts.”
+          Tip: You can paste just a claim. If you include URLs, the tool will still cross-check them.
         </div>
       </div>
 
@@ -266,10 +247,6 @@ https://comptroller.nyc.gov/"></textarea>
     // =========================
     // CONFIG
     // =========================
-
-    // Your Worker endpoint (POST /stress-test)
-    // Later, if you map a subdomain like api.blacksignals.org -> this worker, switch to:
-    // const API_URL = "https://api.blacksignals.org/stress-test";
     const API_URL = "https://blacksignals-api.princecampbellnyc.workers.dev/stress-test";
 
     // =========================
@@ -292,54 +269,34 @@ https://comptroller.nyc.gov/"></textarea>
         .replaceAll("'","&#039;");
     }
 
-    function extractUrls(text){
-      const urlRegex = /(https?:\/\/[^\s]+)/g;
-      const matches = text.match(urlRegex) || [];
-      // Dedup while preserving order
-      const seen = new Set();
-      const urls = [];
-      for (const u of matches){
-        const clean = u.trim().replace(/[)\],.]+$/,""); // trim common trailing punctuation
-        if (!seen.has(clean)){
-          seen.add(clean);
-          urls.push(clean);
-        }
-      }
-      return urls;
-    }
-
-    function stripUrls(text){
-      const urlRegex = /(https?:\/\/[^\s]+)/g;
-      return text.replace(urlRegex, "").replace(/\n{3,}/g, "\n\n").trim();
-    }
-
-    function verdictClass(v){
-      const s = String(v || "").toLowerCase();
-      if (s.includes("true") || s.includes("supported") || s.includes("likely") || s.includes("strong")) return "ok";
-      if (s.includes("false") || s.includes("debunk") || s.includes("unsupported") || s.includes("misleading")) return "bad";
-      if (s.includes("indeterminate") || s.includes("unclear") || s.includes("pending") || s.includes("mixed")) return "warn";
-      return "warn";
-    }
-
     function normList(x){
       if (!x) return [];
       if (Array.isArray(x)) return x;
       return [x];
     }
 
+    function verdictFromLabel(label){
+      const s = String(label || "").toLowerCase();
+      if (s === "true" || s === "likely_true") return { cls: "ok", text: s.replace("_"," ") };
+      if (s === "false" || s === "likely_false") return { cls: "bad", text: s.replace("_"," ") };
+      return { cls: "warn", text: s.replace("_"," ") || "indeterminate" };
+    }
+
     // =========================
-    // RENDERING
+    // RENDERING (matches Worker JSON)
     // =========================
     function renderResponse(data, meta){
-      const cleaned = data?.claim_cleaned ?? data?.claim ?? "";
-      const metrics = normList(data?.metrics);
+      const cleaned = data?.claim_cleaned ?? "—";
+      const metrics = normList(data?.metrics_required);
       const must = normList(data?.must_be_true);
       const signals = normList(data?.signals);
-      const falsifier = data?.falsifier ?? "";
-      const verdict = data?.verdict ?? "";
-      const sources = normList(data?.sources);
+      const falsifier = data?.falsifier ?? "—";
 
-      const vClass = verdictClass(verdict);
+      const verdictObj = data?.verdict || {};
+      const v = verdictFromLabel(verdictObj?.label);
+      const verdictReason = verdictObj?.reason || "";
+
+      const sources = normList(data?.sources);
 
       let html = "";
 
@@ -347,15 +304,15 @@ https://comptroller.nyc.gov/"></textarea>
       html += `
         <div class="section" style="border-top:none; padding-top:0; margin-top:0;">
           <h2>1) The Claim (Cleaned)</h2>
-          <div style="font-family:var(--mono); white-space:pre-wrap;">${escapeHtml(cleaned || "—")}</div>
+          <div style="font-family:var(--mono); white-space:pre-wrap;">${escapeHtml(cleaned)}</div>
         </div>
       `;
 
-      // 2) Metrics
+      // 2) Metrics Required
       html += `
         <div class="section">
           <h2>2) Metrics Required <span class="chip">forced</span></h2>
-          ${metrics.length ? renderMetrics(metrics, sources) : `<div class="smallmuted">No metrics returned (yet).</div>`}
+          ${metrics.length ? `<ul>${metrics.map(x => `<li>${escapeHtml(String(x))}</li>`).join("")}</ul>` : `<div class="smallmuted">—</div>`}
         </div>
       `;
 
@@ -379,7 +336,7 @@ https://comptroller.nyc.gov/"></textarea>
       html += `
         <div class="section">
           <h2>5) Stress Test (Falsifier)</h2>
-          <div>${escapeHtml(falsifier || "—")}</div>
+          <div>${escapeHtml(falsifier)}</div>
         </div>
       `;
 
@@ -387,7 +344,8 @@ https://comptroller.nyc.gov/"></textarea>
       html += `
         <div class="section">
           <h2>6) Verdict</h2>
-          <div class="verdict ${vClass}">${escapeHtml(verdict || "—")}</div>
+          <div class="verdict ${v.cls}">${escapeHtml(v.text)}</div>
+          ${verdictReason ? `<div>${escapeHtml(verdictReason)}</div>` : ``}
           <div class="smallmuted">${escapeHtml(meta || "")}</div>
         </div>
       `;
@@ -403,36 +361,15 @@ https://comptroller.nyc.gov/"></textarea>
       $("output").innerHTML = html;
     }
 
-    function renderMetrics(metrics, sources){
-      // Accept objects like: { metric, measured_by, cite:[ids] } or strings
-      const items = metrics.map(m => {
-        if (m && typeof m === "object"){
-          const metric = escapeHtml(m.metric ?? "—");
-          const measuredBy = escapeHtml(m.measured_by ?? "");
-          const cite = Array.isArray(m.cite) ? m.cite : [];
-          return `
-            <li>
-              <b>${metric}</b>${measuredBy ? ` — ${measuredBy}` : ""}
-              ${cite.length ? ` ${renderCites(cite, sources)}` : ""}
-            </li>
-          `;
-        }
-        return `<li>${escapeHtml(String(m))}</li>`;
-      }).join("");
-
-      return `<ul>${items}</ul>`;
-    }
-
     function renderSignals(signals, sources){
-      // Accept objects like: { text, confidence, cite:[ids] } or strings
       const items = signals.map(s => {
         if (s && typeof s === "object"){
           const text = escapeHtml(s.text ?? "—");
           const conf = escapeHtml((s.confidence ?? "").toString());
           const cite = Array.isArray(s.cite) ? s.cite : [];
-          const confLabel = conf ? ` <span class="chip">${conf}</span>` : "";
-          const citeLabel = cite.length ? ` ${renderCites(cite, sources)}` : "";
-          return `<li>${text}${confLabel}${citeLabel}</li>`;
+          const confChip = conf ? ` <span class="chip">${conf}</span>` : "";
+          const citeChip = cite.length ? ` ${renderCites(cite, sources)}` : "";
+          return `<li>${text}${confChip}${citeChip}</li>`;
         }
         return `<li>${escapeHtml(String(s))}</li>`;
       }).join("");
@@ -441,7 +378,7 @@ https://comptroller.nyc.gov/"></textarea>
     }
 
     function renderCites(citeIds, sources){
-      // citeIds = [0,2] where sources[0], sources[2]
+      // citeIds = [0,2] into sources[]
       const safe = citeIds
         .map(n => Number.isFinite(n) ? n : null)
         .filter(n => n !== null);
@@ -465,16 +402,19 @@ https://comptroller.nyc.gov/"></textarea>
       const cards = sources.map((s, idx) => {
         const title = escapeHtml(s?.title || `Source ${idx+1}`);
         const url = escapeHtml(s?.url || "");
-        const note = escapeHtml(s?.note || s?.snippet || "");
+        const publisher = escapeHtml(s?.publisher || "");
+        const date = escapeHtml(s?.date || "");
+        const meta = [publisher, date].filter(Boolean).join(" • ");
+
         return `
           <div class="src">
             <div class="srcTop">
               <div>
                 <div class="srcTitle">${idx+1}) ${title}</div>
+                ${meta ? `<div class="srcNote">${meta}</div>` : ``}
                 ${url ? `<div class="srcUrl"><a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a></div>` : ""}
               </div>
             </div>
-            ${note ? `<div class="srcNote">${note}</div>` : ""}
           </div>
         `;
       }).join("");
@@ -486,24 +426,24 @@ https://comptroller.nyc.gov/"></textarea>
     // DEMO FALLBACK
     // =========================
     function demoResponseFrom(text){
-      const claim = stripUrls(text) || text.trim() || "—";
+      const claim = (text || "").trim() || "—";
       return {
         claim_cleaned: claim,
-        metrics: [
-          { metric: "Define what 'like 2008' means in measurable terms", measured_by: "Pick 2–4 numeric indicators + time window", cite: [] },
-          { metric: "Pick a baseline and compare deltas", measured_by: "Same units, same window, comparable denominators", cite: [] }
+        metrics_required: [
+          "Define the measurable indicators and the time window.",
+          "Define what data would falsify the claim."
         ],
         must_be_true: [
           "Key terms are defined consistently (no moving goalposts).",
-          "The causal link is testable (not just vibes or correlation).",
-          "Evidence that could falsify the claim would be accepted if found."
+          "The claim is testable (not just vibes).",
+          "There exists evidence that could falsify the claim and we’d accept it if found."
         ],
         signals: [
-          { text: "If this is a fiscal claim, prioritize audited budgets, bond disclosures, and official financial statements (not rhetoric).", confidence: "high", cite: [] },
-          { text: "If sources do not measure the claim (metrics/time window), verdict should be Indeterminate, not 'plausible'.", confidence: "high", cite: [] }
+          { text: "Look for primary sources first (official reports, datasets, filings).", confidence: "high", cite: [] },
+          { text: "If evidence is mixed or thin, verdict should be indeterminate.", confidence: "high", cite: [] }
         ],
-        falsifier: "If the claim is wrong, official financial statements / budget docs and market indicators should contradict the framing over the defined time window.",
-        verdict: "Indeterminate — add receipts that actually measure the claim.",
+        falsifier: "If the claim is wrong, credible sources should clearly contradict it on the key metric(s) over the defined window.",
+        verdict: { label: "indeterminate", reason: "Demo output (API error/offline)." },
         sources: []
       };
     }
@@ -513,9 +453,6 @@ https://comptroller.nyc.gov/"></textarea>
     // =========================
     async function run(){
       const raw = $("input").value || "";
-      const claimText = stripUrls(raw);
-      const receipts = extractUrls(raw);
-
       if (!raw.trim()){
         $("runStatus").textContent = "Add a claim first.";
         return;
@@ -524,12 +461,8 @@ https://comptroller.nyc.gov/"></textarea>
       $("runStatus").textContent = "Running…";
       setApiBadge("warn", "API: calling…");
 
-      // Payload shape expected by your Worker:
-      // If your Worker uses different keys, change them here (ONE place).
-      const payload = {
-        claim: claimText || raw.trim(),
-        receipts: receipts
-      };
+      // ✅ This matches the Worker: it expects { text: "..." }
+      const payload = { text: raw.trim() };
 
       try{
         const res = await fetch(API_URL, {
@@ -538,11 +471,9 @@ https://comptroller.nyc.gov/"></textarea>
           body: JSON.stringify(payload)
         });
 
-        // CORS errors won’t reach here; fetch would throw.
         const data = await res.json().catch(() => null);
 
         if (!res.ok || !data){
-          // API is reachable but returned error or non-JSON
           setApiBadge("bad", "API: error (fallback)");
           $("runStatus").textContent = "API error — showing demo output.";
           renderResponse(demoResponseFrom(raw), "API error / fallback demo output.");
@@ -551,7 +482,7 @@ https://comptroller.nyc.gov/"></textarea>
 
         setApiBadge("ok", "API: live");
         $("runStatus").textContent = "Done";
-        renderResponse(data, receipts.length ? "Receipts detected — citations should appear on signals/metrics." : "No receipts detected — expect Indeterminate until sources measure the claim.");
+        renderResponse(data, "Citations link to sources the model found via web search.");
       }catch(e){
         setApiBadge("bad", "API: offline (fallback)");
         $("runStatus").textContent = "API offline — showing demo output.";
@@ -568,8 +499,6 @@ https://comptroller.nyc.gov/"></textarea>
     // Wire up
     $("run").addEventListener("click", run);
     $("clear").addEventListener("click", clearAll);
-
-    // Quick health check (optional): attempt OPTIONS/POST not needed; just mark unknown until first run.
     setApiBadge("warn", "API: unknown");
   </script>
 </body>
