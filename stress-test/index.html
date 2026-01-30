@@ -84,6 +84,7 @@
     .sources li{margin-bottom:8px;}
     .tag{font-size:12px; color:var(--muted);}
     .status{margin-left:auto; font-size:12px; color:var(--muted);}
+    .navline{margin-top:10px; display:flex; gap:14px; flex-wrap:wrap;}
   </style>
 </head>
 
@@ -92,7 +93,13 @@
     <header>
       <div class="kicker">BlackSignals.org</div>
       <h1>Stress Test</h1>
-      <p class="sub">Paste a claim, headline, paragraph, or argument you believe is true. This tool returns assumptions, evidence signals, a falsifier, a forced verdict, and sources so people can check it.</p>
+      <p class="sub">
+        Paste a claim, headline, paragraph, or argument you believe is true. This tool returns assumptions, evidence signals,
+        a falsifier, a forced verdict, and sources so people can check it.
+      </p>
+      <div class="navline">
+        <a href="/">← Back to BlackSignals</a>
+      </div>
     </header>
 
     <div class="grid">
@@ -102,7 +109,7 @@
         <div class="row">
           <button id="run">Stress Test</button>
           <button id="clear">Clear</button>
-          <span class="hint">MVP: output is demo-format now. Next step: wire to an API.</span>
+          <span class="hint">Now wired for an API. If the API is offline, it falls back to demo output.</span>
         </div>
       </section>
 
@@ -147,7 +154,7 @@
     </div>
 
     <footer>
-      <div><strong>Note:</strong> This is an MVP. It will sometimes say “unclear” if evidence is weak or missing.</div>
+      <div><strong>Note:</strong> This tool may return “unclear” when evidence is weak or missing.</div>
       <div class="small" style="margin-top:8px;">An early Chartreuse Explosives project.</div>
     </footer>
   </div>
@@ -155,9 +162,24 @@
   <script>
     const $ = (id) => document.getElementById(id);
 
+    // TODO: replace with your real endpoint once we deploy it.
+    // If you later set up api.blacksignals.org, this becomes:
+    // const API_URL = "https://api.blacksignals.org/stress-test";
+    const API_URL = "https://api.blacksignals.org/stress-test";
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
     function setDemoOutput(text) {
-      // Demo output: shows structure immediately. Later replaced by API response.
-      $("claim").textContent = text ? `Core claim: ${text.trim().slice(0, 240)}${text.trim().length > 240 ? "…" : ""}` : "—";
+      $("claim").textContent = text
+        ? `Core claim: ${text.trim().slice(0, 240)}${text.trim().length > 240 ? "…" : ""}`
+        : "—";
 
       $("mustBeTrue").innerHTML = `
         <li>Key terms are defined consistently (not shifting mid-argument).</li>
@@ -175,24 +197,80 @@
         "If this claim is wrong, the first thing we’d expect to see is a strong, repeated counterexample in credible data (not anecdotes).";
 
       $("verdict").textContent = "Indeterminate — missing critical data.";
-      $("verdictNote").textContent = "MVP output. Next: compute this from evidence + sources.";
+      $("verdictNote").textContent = "Demo output. Next: compute this from evidence + sources.";
 
       $("sources").innerHTML = `
-        <li><span class="mono">[placeholder]</span> Add reputable sources here once API wiring is done (e.g., BLS, Census, Pew, Brookings, IGM, CRS, GAO, etc.).</li>
+        <li><span class="mono">[placeholder]</span> Once API wiring is done, this section will contain 3–6 reputable links.</li>
       `;
+    }
+
+    function applyApiOutput(data) {
+      $("claim").textContent = data.claim_cleaned ? escapeHtml(data.claim_cleaned) : "—";
+
+      const must = Array.isArray(data.must_be_true) && data.must_be_true.length
+        ? data.must_be_true
+        : ["—"];
+      $("mustBeTrue").innerHTML = must
+        .map(x => `<li>${escapeHtml(x)}</li>`)
+        .join("");
+
+      const sigs = Array.isArray(data.signals) && data.signals.length
+        ? data.signals
+        : [{ text: "—", confidence: "n/a", url: "#" }];
+
+      $("signals").innerHTML = sigs.map(s => {
+        const txt = escapeHtml(s.text || "—");
+        const conf = escapeHtml(s.confidence || "n/a");
+        const url = s.url ? String(s.url) : "#";
+        const link = url && url !== "#"
+          ? `<a href="${url}" target="_blank" rel="noopener">source</a>`
+          : `<span class="mono">no source</span>`;
+        return `<li>${txt} <span class="mono">(${conf})</span> — ${link}</li>`;
+      }).join("");
+
+      $("falsifier").textContent = data.falsifier ? escapeHtml(data.falsifier) : "—";
+
+      $("verdict").textContent = data.verdict?.label ? escapeHtml(data.verdict.label) : "—";
+      $("verdictNote").textContent = data.verdict?.note ? escapeHtml(data.verdict.note) : "";
+
+      const sources = Array.isArray(data.sources) && data.sources.length
+        ? data.sources
+        : [{ title: "—", url: "#" }];
+
+      $("sources").innerHTML = sources.map(src => {
+        const title = escapeHtml(src.title || "Source");
+        const url = src.url ? String(src.url) : "#";
+        if (!url || url === "#") return `<li>${title}</li>`;
+        return `<li><a href="${url}" target="_blank" rel="noopener">${title}</a></li>`;
+      }).join("");
     }
 
     async function run() {
       const input = $("input").value.trim();
+      if (!input) return;
+
       $("status").textContent = "Running…";
 
-      // MVP behavior: demo output immediately.
-      // Next step: replace this block with a fetch() call to your backend.
-      setDemoOutput(input);
-      $("status").textContent = "Done (demo)";
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: input })
+        });
+
+        if (!res.ok) throw new Error("API error");
+
+        const data = await res.json();
+        applyApiOutput(data);
+        $("status").textContent = "Done";
+      } catch (e) {
+        $("status").textContent = "API offline — demo output";
+        setDemoOutput(input);
+      }
     }
 
     $("run").addEventListener("click", run);
+
     $("clear").addEventListener("click", () => {
       $("input").value = "";
       $("status").textContent = "Ready";
@@ -204,10 +282,6 @@
       $("verdictNote").textContent = "";
       $("sources").innerHTML = "<li>—</li>";
     });
-
-    // Optional: run demo on load if you want a filled example:
-    // $("input").value = "Example claim here…";
-    // run();
   </script>
 </body>
 </html>
