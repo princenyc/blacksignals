@@ -462,7 +462,9 @@ NYC is facing a fiscal crisis like 2008.
       setApiBadge("warn", "API: calling…");
 
       // ✅ This matches the Worker: it expects { text: "..." }
-      const payload = { text: raw.trim() };
+      const payload = {
+  text: raw.trim()
+};
 
       try{
         const res = await fetch(API_URL, {
