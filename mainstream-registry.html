@@ -1,0 +1,1067 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BlackSignals — RSS Registries (Black + Mainstream Conditional)</title>
+  <meta name="description" content="Black-owned/led/focused RSS registry + mainstream-conditional registry with impact gates, bias notes, and simple matcher rules." />
+  <style>
+    :root{
+      --red:#d0002a;
+      --g1:#94b23c;
+      --g2:#4a6431;
+      --dark:#2a1f1a;
+      --wine:#1c0c0f;
+      --off:#fff6ee;
+      --ink:#12080a;
+      --muted:#3a2a2c;
+      --card: rgba(255,246,238,0.88);
+      --border: rgba(42,31,26,0.18);
+      --shadow: 0 10px 30px rgba(0,0,0,0.18);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      background:
+        radial-gradient(1200px 700px at 30% 10%, rgba(148,178,60,0.16), transparent 55%),
+        radial-gradient(900px 600px at 70% 0%, rgba(208,0,42,0.22), transparent 60%),
+        linear-gradient(180deg, rgba(28,12,15,0.92), rgba(18,8,10,0.98));
+      color: var(--off);
+      min-height: 100vh;
+    }
+    header{
+      padding: 28px 18px 14px;
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .kicker{
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      font-size: 12px;
+      color: rgba(255,246,238,0.78);
+    }
+    h1{
+      margin: 10px 0 6px;
+      font-size: clamp(22px, 3.2vw, 34px);
+      line-height: 1.1;
+    }
+    .sub{
+      color: rgba(255,246,238,0.82);
+      max-width: 72ch;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    main{
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 12px 18px 40px;
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 14px;
+    }
+    @media (max-width: 980px){
+      main{ grid-template-columns: 1fr; }
+    }
+    .panel{
+      background: rgba(255,246,238,0.06);
+      border: 1px solid rgba(255,246,238,0.12);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .panel .hd{
+      padding: 14px 14px 12px;
+      border-bottom: 1px solid rgba(255,246,238,0.12);
+      background:
+        linear-gradient(90deg, rgba(208,0,42,0.18), rgba(148,178,60,0.12));
+    }
+    .panel .hd h2{
+      margin:0;
+      font-size: 14px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .panel .bd{
+      padding: 14px;
+    }
+    .row{ display:flex; gap:10px; flex-wrap: wrap; align-items: center; }
+    .row > * { flex: 1 1 auto; }
+    label{ font-size: 12px; color: rgba(255,246,238,0.82); display:block; margin-bottom: 6px;}
+    input[type="text"], textarea, select{
+      width: 100%;
+      box-sizing: border-box;
+      background: rgba(255,246,238,0.08);
+      border: 1px solid rgba(255,246,238,0.18);
+      color: var(--off);
+      border-radius: 12px;
+      padding: 10px 10px;
+      outline: none;
+      font-size: 14px;
+    }
+    textarea{ min-height: 120px; resize: vertical; }
+    button{
+      background: linear-gradient(90deg, rgba(208,0,42,0.92), rgba(208,0,42,0.72));
+      border: 1px solid rgba(255,246,238,0.18);
+      color: var(--off);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .06s ease;
+      white-space: nowrap;
+    }
+    button:active{ transform: translateY(1px); }
+    .ghost{
+      background: rgba(255,246,238,0.10);
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,246,238,0.18);
+      font-size: 12px;
+      color: rgba(255,246,238,0.9);
+      background: rgba(255,246,238,0.06);
+    }
+    .pill strong{ font-weight: 800; }
+    .pill.red{ border-color: rgba(208,0,42,0.50); background: rgba(208,0,42,0.14); }
+    .pill.green{ border-color: rgba(148,178,60,0.45); background: rgba(148,178,60,0.14); }
+    .pill.dark{ border-color: rgba(42,31,26,0.45); background: rgba(42,31,26,0.24); }
+    .pill.wine{ border-color: rgba(28,12,15,0.55); background: rgba(28,12,15,0.40); }
+    .small{ font-size: 12px; color: rgba(255,246,238,0.75); line-height: 1.45; }
+    .list{
+      display: grid;
+      gap: 10px;
+    }
+    .card{
+      background: var(--card);
+      color: var(--ink);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 12px 12px 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.14);
+    }
+    .card h3{
+      margin: 0 0 6px;
+      font-size: 15px;
+      line-height: 1.2;
+    }
+    .meta{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .tag{
+      font-size: 11px;
+      border: 1px solid rgba(42,31,26,0.16);
+      background: rgba(255,255,255,0.55);
+      border-radius: 999px;
+      padding: 4px 8px;
+      color: rgba(18,8,10,0.92);
+    }
+    .links{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+      font-size: 12px;
+    }
+    .links a{
+      color: rgba(18,8,10,0.92);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(18,8,10,0.20);
+    }
+    .mono{
+      font-family: var(--mono);
+      font-size: 12px;
+      background: rgba(18,8,10,0.08);
+      border: 1px solid rgba(18,8,10,0.10);
+      border-radius: 12px;
+      padding: 10px;
+      overflow:auto;
+      color: rgba(18,8,10,0.95);
+    }
+    .resultBox{
+      border-radius: 16px;
+      border: 1px solid rgba(255,246,238,0.18);
+      background: rgba(255,246,238,0.06);
+      padding: 12px;
+    }
+    .ok{ color: rgba(148,178,60,0.98); font-weight: 800; }
+    .bad{ color: rgba(255,120,140,0.98); font-weight: 800; }
+    footer{
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 18px 26px;
+      color: rgba(255,246,238,0.70);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="kicker">BlackSignals Registry</div>
+  <h1>Black RSS Registry + Mainstream Conditional Lens</h1>
+  <p class="sub">
+    Black-owned / Black-led / Black-focused / Collaborative RSS sources + a separate mainstream-conditional set that only activates under <b>impact gates</b>.
+    This page includes the registries, short bias-risk notes for mainstream, and a simple text matcher to test whether a mainstream item qualifies.
+  </p>
+</header>
+
+<main>
+  <!-- LEFT: Registry viewer -->
+  <section class="panel" aria-label="Registry viewer">
+    <div class="hd">
+      <h2>Registry Viewer</h2>
+    </div>
+    <div class="bd">
+      <div class="row" style="margin-bottom:10px;">
+        <div style="flex:2 1 360px;">
+          <label for="q">Search</label>
+          <input id="q" type="text" placeholder="Search name, focus, notes…" />
+        </div>
+        <div style="flex:1 1 220px;">
+          <label for="set">Dataset</label>
+          <select id="set">
+            <option value="black">Black Registry (Owned/Led/Focused/Collaborative)</option>
+            <option value="mainstream">Mainstream Conditional Registry</option>
+            <option value="both">Both (Merged View)</option>
+          </select>
+        </div>
+        <div style="flex:1 1 220px;">
+          <label for="label">Label Filter</label>
+          <select id="label">
+            <option value="all">All</option>
+            <option value="black-owned">black-owned</option>
+            <option value="black-led">black-led</option>
+            <option value="black-focused">black-focused</option>
+            <option value="collaborative">collaborative</option>
+            <option value="mainstream-conditional">mainstream-conditional</option>
+          </select>
+        </div>
+        <div style="flex:0 1 auto; align-self:end;">
+          <button id="copyMerged" class="ghost" title="Copy merged JSON to clipboard">Copy JSON</button>
+        </div>
+      </div>
+
+      <div class="row" style="margin-bottom:10px;">
+        <span class="pill red"><strong>Rule:</strong> Mainstream is OFF unless an impact gate triggers</span>
+        <span class="pill green"><strong>Labels:</strong> explicit control/mandate, no vibes</span>
+        <span class="pill wine"><strong>Status:</strong> active / degraded / inactive</span>
+      </div>
+
+      <div id="count" class="small" style="margin:8px 2px 12px;"></div>
+      <div id="list" class="list"></div>
+    </div>
+  </section>
+
+  <!-- RIGHT: Gating tester + rules -->
+  <aside class="panel" aria-label="Mainstream gating rules">
+    <div class="hd">
+      <h2>Mainstream Gate Tester</h2>
+    </div>
+    <div class="bd">
+      <p class="small" style="margin-top:0;">
+        Paste a headline/lede/paragraph. The matcher returns:
+        (1) Which <b>impact gates</b> triggered,
+        (2) whether the item is <b>eligible</b> to include from mainstream,
+        (3) if it should be <b>blocked</b> as discourse-only / no lever.
+      </p>
+
+      <label for="text">Text to test</label>
+      <textarea id="text" placeholder="Paste headline, lede, or paragraph…"></textarea>
+
+      <div class="row" style="margin-top:10px;">
+        <button id="run">Run gate test</button>
+        <button id="fillExample" class="ghost">Load example</button>
+        <button id="copyRules" class="ghost">Copy rules JSON</button>
+      </div>
+
+      <div id="result" class="resultBox" style="margin-top:12px;">
+        <div class="small">No test run yet.</div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <div class="pill dark"><strong>Matcher:</strong> keywords + simple levers</div>
+      </div>
+
+      <div class="small" style="margin-top:10px;">
+        <b>Implementation note:</b> this is a deliberately simple first-pass matcher.
+        You’ll catch most “real world levers” (laws, enforcement, funding, courts).
+        You’ll miss nuance. That’s fine: the registry is infrastructure; the analysis layer comes later.
+      </div>
+
+      <hr style="border:none;border-top:1px solid rgba(255,246,238,0.12); margin:14px 0;" />
+
+      <div class="small">
+        <b>Transparency footer template (for mainstream items):</b><br/>
+        <span class="pill">Source lens: Mainstream (conditional)</span>
+        <span class="pill">Included because: [impact_gate]</span>
+        <span class="pill">What changed: [one operational lever sentence]</span>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <div class="small">
+    <b>Promise:</b> Black sources are labeled by ownership/editorial control or explicit mandate. Mainstream sources are included only when
+    an impact gate triggers (policy/rights, disparity, institutional power, targeted harm) and a lever signal appears (law, funding, enforcement, court).
+    No silent blending.
+  </div>
+</footer>
+
+<script>
+/* =========================
+   BLACK REGISTRY (v1)
+   ========================= */
+const BLACK_REGISTRY = [
+  {
+    "name": "Capital B",
+    "rss": "https://capitalbnews.org/feed/",
+    "site": "https://capitalbnews.org",
+    "label": "black-owned",
+    "focus": ["politics", "policy", "local", "national"],
+    "scope": "national",
+    "format": ["reported"],
+    "institution_type": "nonprofit",
+    "update_frequency": "daily",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "National nonprofit newsroom with local bureaus"
+  },
+  {
+    "name": "Word In Black",
+    "rss": "https://wordinblack.com/feed/",
+    "site": "https://wordinblack.com",
+    "label": "collaborative",
+    "focus": ["policy", "education", "labor", "health"],
+    "scope": "national",
+    "format": ["reported"],
+    "institution_type": "collaborative",
+    "update_frequency": "daily",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Network of Black-led local newsrooms"
+  },
+  {
+    "name": "Black Enterprise",
+    "rss": "https://www.blackenterprise.com/feed/",
+    "site": "https://www.blackenterprise.com",
+    "label": "black-owned",
+    "focus": ["business", "economy", "wealth"],
+    "scope": "national",
+    "format": ["reported", "analysis"],
+    "institution_type": "commercial",
+    "update_frequency": "daily",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Business and economic reporting"
+  },
+  {
+    "name": "TheGrio",
+    "rss": "https://thegrio.com/feed/",
+    "site": "https://thegrio.com",
+    "label": "black-led",
+    "focus": ["politics", "culture", "news"],
+    "scope": "national",
+    "format": ["reported", "opinion"],
+    "institution_type": "commercial",
+    "update_frequency": "daily",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Digital-first Black news outlet"
+  },
+  {
+    "name": "Afro",
+    "rss": "https://www.afro.com/feed/",
+    "site": "https://www.afro.com",
+    "label": "black-owned",
+    "focus": ["local", "politics", "community"],
+    "scope": "regional",
+    "format": ["reported"],
+    "institution_type": "commercial",
+    "update_frequency": "daily",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Historic Black newspaper (Baltimore)"
+  },
+  {
+    "name": "Atlanta Black Star",
+    "rss": "https://atlantablackstar.com/feed/",
+    "site": "https://atlantablackstar.com",
+    "label": "black-owned",
+    "focus": ["politics", "culture", "justice"],
+    "scope": "national",
+    "format": ["reported", "analysis"],
+    "institution_type": "commercial",
+    "update_frequency": "daily",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Digital-native Black news site"
+  },
+  {
+    "name": "The Philadelphia Tribune",
+    "rss": "https://www.phillytrib.com/search/?f=rss&t=article",
+    "site": "https://www.phillytrib.com",
+    "label": "black-owned",
+    "focus": ["local", "politics", "community"],
+    "scope": "local",
+    "format": ["reported"],
+    "institution_type": "commercial",
+    "update_frequency": "daily",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Oldest continuously published Black newspaper"
+  },
+  {
+    "name": "Chicago Defender",
+    "rss": "https://chicagodefender.com/feed/",
+    "site": "https://chicagodefender.com",
+    "label": "black-owned",
+    "focus": ["local", "politics", "culture"],
+    "scope": "local",
+    "format": ["reported"],
+    "institution_type": "commercial",
+    "update_frequency": "daily",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Historic Black newspaper"
+  },
+  {
+    "name": "Los Angeles Sentinel",
+    "rss": "https://lasentinel.net/feed",
+    "site": "https://lasentinel.net",
+    "label": "black-owned",
+    "focus": ["local", "politics", "community"],
+    "scope": "local",
+    "format": ["reported"],
+    "institution_type": "commercial",
+    "update_frequency": "weekly",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "West Coast Black newspaper"
+  },
+  {
+    "name": "Mississippi Free Press",
+    "rss": "https://www.mississippifreepress.org/feed/",
+    "site": "https://www.mississippifreepress.org",
+    "label": "black-led",
+    "focus": ["politics", "justice", "policy"],
+    "scope": "regional",
+    "format": ["reported"],
+    "institution_type": "nonprofit",
+    "update_frequency": "daily",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Investigative nonprofit newsroom"
+  },
+  {
+    "name": "Scalawag",
+    "rss": "https://scalawagmagazine.org/feed/",
+    "site": "https://scalawagmagazine.org",
+    "label": "black-led",
+    "focus": ["culture", "politics", "south"],
+    "scope": "regional",
+    "format": ["analysis", "reported"],
+    "institution_type": "nonprofit",
+    "update_frequency": "weekly",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Southern-focused journalism and culture"
+  },
+  {
+    "name": "The Root",
+    "rss": "https://www.theroot.com/rss",
+    "site": "https://www.theroot.com",
+    "label": "black-focused",
+    "focus": ["culture", "politics", "opinion"],
+    "scope": "national",
+    "format": ["opinion", "analysis"],
+    "institution_type": "commercial",
+    "update_frequency": "daily",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Opinion and commentary heavy"
+  },
+  {
+    "name": "Blavity",
+    "rss": "https://blavity.com/feed",
+    "site": "https://blavity.com",
+    "label": "black-owned",
+    "focus": ["culture", "lifestyle"],
+    "scope": "national",
+    "format": ["reported", "opinion"],
+    "institution_type": "commercial",
+    "update_frequency": "daily",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Youth and culture focused"
+  },
+  {
+    "name": "BLEX Media",
+    "rss": "https://blexmedia.com/feed/",
+    "site": "https://blexmedia.com",
+    "label": "black-owned",
+    "focus": ["entertainment", "film", "tv"],
+    "scope": "national",
+    "format": ["reported"],
+    "institution_type": "commercial",
+    "update_frequency": "daily",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Film and television reporting"
+  },
+  {
+    "name": "Atlanta Daily World",
+    "rss": "https://atlantadailyworld.com/feed/",
+    "site": "https://atlantadailyworld.com",
+    "label": "black-owned",
+    "focus": ["local", "politics", "community"],
+    "scope": "local",
+    "format": ["reported"],
+    "institution_type": "commercial",
+    "update_frequency": "daily",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Historic Black newspaper"
+  },
+  {
+    "name": "The Final Call",
+    "rss": "https://finalcall.com/feed/",
+    "site": "https://finalcall.com",
+    "label": "black-owned",
+    "focus": ["politics", "international", "community"],
+    "scope": "national",
+    "format": ["reported", "opinion"],
+    "institution_type": "commercial",
+    "update_frequency": "weekly",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Nation of Islam-affiliated publication"
+  },
+  {
+    "name": "The New Pittsburgh Courier",
+    "rss": "https://newpittsburghcourier.com/feed/",
+    "site": "https://newpittsburghcourier.com",
+    "label": "black-owned",
+    "focus": ["local", "politics", "culture"],
+    "scope": "local",
+    "format": ["reported"],
+    "institution_type": "commercial",
+    "update_frequency": "daily",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Black Press outlet"
+  },
+  {
+    "name": "The Bay State Banner",
+    "rss": "https://baystatebanner.com/feed/",
+    "site": "https://baystatebanner.com",
+    "label": "black-owned",
+    "focus": ["local", "politics", "community"],
+    "scope": "local",
+    "format": ["reported"],
+    "institution_type": "commercial",
+    "update_frequency": "weekly",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Boston-area Black newspaper"
+  }
+];
+
+/* =========================
+   MAINSTREAM CONDITIONAL REGISTRY (v1) + bias_risk_notes (short)
+   ========================= */
+const MAINSTREAM_REGISTRY = [
+  {
+    "name": "Associated Press (Top News)",
+    "rss": "https://apnews.com/hub/ap-top-news/rss",
+    "site": "https://apnews.com",
+    "label": "mainstream-conditional",
+    "publisher_type": "wire",
+    "jurisdiction": "us",
+    "allowed_when": {
+      "impact_gates": ["policy/rights", "disparity", "institutional_power", "targeted_harm"],
+      "required_signals": ["names an enforcement change, funding shift, court ruling, or measurable outcome"],
+      "blocked_signals": ["pure discourse/controversy with no operational change", "celebrity-only race talk"]
+    },
+    "bias_risk_notes": "Often frames as “minority” + flattens local nuance.",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Use as baseline for verifiable policy enforcement and measurable outcomes"
+  },
+  {
+    "name": "Reuters (Top News)",
+    "rss": "https://www.reuters.com/rssFeed/topNews",
+    "site": "https://www.reuters.com",
+    "label": "mainstream-conditional",
+    "publisher_type": "wire",
+    "jurisdiction": "global",
+    "allowed_when": {
+      "impact_gates": ["policy/rights", "institutional_power", "disparity"],
+      "required_signals": ["contains a decision, regulation, enforcement action, market shift, or legal ruling"],
+      "blocked_signals": ["campaign theater", "culture-war-only items"]
+    },
+    "bias_risk_notes": "Strong on markets/courts; weak on lived impact detail.",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Strong for courts, regulation, markets; weaker for community-grounded nuance"
+  },
+  {
+    "name": "The New York Times (US)",
+    "rss": "https://rss.nytimes.com/services/xml/rss/nyt/US.xml",
+    "site": "https://www.nytimes.com",
+    "label": "mainstream-conditional",
+    "publisher_type": "newspaper",
+    "jurisdiction": "us",
+    "allowed_when": {
+      "impact_gates": ["policy/rights", "institutional_power", "disparity"],
+      "required_signals": ["names an operational lever (law, funding, enforcement, court, school district, hospital system)"],
+      "blocked_signals": ["opinion-only items unless they reference a concrete lever"]
+    },
+    "bias_risk_notes": "Agenda-setting; can over-index elite institutions.",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Gate harder: require an operational lever or measurable disparate impact"
+  },
+  {
+    "name": "The Washington Post (National)",
+    "rss": "https://feeds.washingtonpost.com/rss/national",
+    "site": "https://www.washingtonpost.com",
+    "label": "mainstream-conditional",
+    "publisher_type": "newspaper",
+    "jurisdiction": "us",
+    "allowed_when": {
+      "impact_gates": ["policy/rights", "institutional_power", "targeted_harm"],
+      "required_signals": ["has document trail: court docs, agency memo, budget line, enforcement directive"],
+      "blocked_signals": ["general commentary without documents"]
+    },
+    "bias_risk_notes": "Investigations strong; framing can center institutions over targets.",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Use for investigations when there’s documentation"
+  },
+  {
+    "name": "ProPublica",
+    "rss": "https://www.propublica.org/feeds/propublica/main",
+    "site": "https://www.propublica.org",
+    "label": "mainstream-conditional",
+    "publisher_type": "magazine",
+    "jurisdiction": "us",
+    "allowed_when": {
+      "impact_gates": ["disparity", "institutional_power", "targeted_harm", "policy/rights"],
+      "required_signals": ["must include data, records, or investigative evidence"],
+      "blocked_signals": []
+    },
+    "bias_risk_notes": "Usually high-signal; still not Black-institution grounded.",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Often high-signal for systemic patterns affecting Black communities"
+  },
+  {
+    "name": "NPR (News)",
+    "rss": "https://feeds.npr.org/1001/rss.xml",
+    "site": "https://www.npr.org",
+    "label": "mainstream-conditional",
+    "publisher_type": "broadcaster",
+    "jurisdiction": "us",
+    "allowed_when": {
+      "impact_gates": ["policy/rights", "targeted_harm", "institutional_power"],
+      "required_signals": ["must cite an official action, court ruling, or institutional decision"],
+      "blocked_signals": ["human-interest-only pieces without a lever"]
+    },
+    "bias_risk_notes": "Tone can sanitize conflict; leans explanatory over power.",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Use when the story ties to real-world policy or institutional decisions"
+  },
+  {
+    "name": "BBC (World)",
+    "rss": "http://feeds.bbci.co.uk/news/world/rss.xml",
+    "site": "https://www.bbc.com/news",
+    "label": "mainstream-conditional",
+    "publisher_type": "broadcaster",
+    "jurisdiction": "global",
+    "allowed_when": {
+      "impact_gates": ["targeted_harm", "institutional_power", "policy/rights"],
+      "required_signals": ["global diaspora impact or US-relevant structural shift"],
+      "blocked_signals": ["generic world events with no Black/diaspora relevance"]
+    },
+    "bias_risk_notes": "Global lens; may underplay US racial structure specificity.",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Only include when there’s clear Black diaspora relevance or US structural crossover"
+  },
+  {
+    "name": "The Guardian (US News)",
+    "rss": "https://www.theguardian.com/us-news/rss",
+    "site": "https://www.theguardian.com/us-news",
+    "label": "mainstream-conditional",
+    "publisher_type": "newspaper",
+    "jurisdiction": "global",
+    "allowed_when": {
+      "impact_gates": ["policy/rights", "disparity", "institutional_power"],
+      "required_signals": ["must reference a policy lever or measurable outcome"],
+      "blocked_signals": ["opinion-only without a lever"]
+    },
+    "bias_risk_notes": "Strong framing; sometimes over-editorializes U.S. context.",
+    "status": "active",
+    "last_checked": "2026-02-04",
+    "notes": "Good for US + global framing; keep lever requirement"
+  }
+];
+
+/* =========================
+   GATING KEYWORDS + SIMPLE MATCHER RULES (v1)
+   - Deliberately simple, conservative, leans toward excluding discourse-only
+   ========================= */
+const GATE_RULES = {
+  version: "v1",
+  impact_gates: {
+    "policy/rights": [
+      "law", "bill", "act", "executive order", "rule change", "regulation", "department of", "agency",
+      "medicaid", "snap", "food stamps", "section 8", "housing voucher", "eviction", "school district",
+      "desegregation", "voting", "voter", "registration", "ballot", "early voting", "redistricting",
+      "affirmative action", "civil rights", "title vi", "title ix", "doj", "eeoc", "osha", "nlrb",
+      "minimum wage", "benefits", "eligibility", "work requirement", "waiver", "immigration enforcement"
+    ],
+    "disparity": [
+      "disparity", "racial gap", "black americans", "african american", "latino", "hispanic", "minorities",
+      "people of color", "by race", "racially", "segregation", "inequity", "overrepresented",
+      "maternal mortality", "life expectancy", "incarceration", "sentencing", "stop-and-frisk"
+    ],
+    "institutional_power": [
+      "supreme court", "appeals court", "federal judge", "injunction", "ruling", "consent decree",
+      "budget", "appropriation", "funding cut", "grant", "contract", "audit", "oversight",
+      "mayor", "governor", "state legislature", "school board", "prosecutor", "district attorney",
+      "police commissioner", "policy memo", "guidance", "enforcement", "compliance", "verification"
+    ],
+    "targeted_harm": [
+      "hate crime", "bias attack", "white supremacist", "neo-nazi", "lynching", "threats",
+      "surveillance", "facial recognition", "gang database", "raids", "use of force",
+      "police shooting", "civilian killed", "environmental justice", "lead", "water contamination",
+      "pollution", "toxic", "prison", "jail", "solitary"
+    ]
+  },
+
+  // "Lever" signals: if none of these appear, mainstream should almost always stay OFF.
+  required_lever_signals: [
+    "enforcement", "rule takes effect", "effective", "begins applying", "deadline", "compliance",
+    "cut off", "terminated", "suspended", "reinstated", "eligible", "ineligible",
+    "funding", "budget", "appropriation", "grant", "contract",
+    "lawsuit", "settlement", "injunction", "ruling", "decision", "charges filed", "indicted",
+    "policy change", "guidance", "directive", "memo", "audit"
+  ],
+
+  // Blocks: if these dominate and no lever signals exist, treat as discourse-only.
+  blocked_discourse_signals: [
+    "debate", "backlash", "sparks outrage", "controversy", "critics say", "slammed", "clapback",
+    "viral", "social media reacts", "twitter", "x users", "tiktok users", "op-ed", "opinion",
+    "thinkpiece", "hot take", "cancelled", "culture war"
+  ],
+
+  // A small “Black relevance” cue list for mainstream inclusion.
+  // (Not required if the story is clearly about Black impact; helps reduce generic-policy noise.)
+  black_relevance_cues: [
+    "black", "african american", "naacp", "hbcus", "black voters", "black community",
+    "racial", "race", "civil rights", "reconstruction", "jim crow", "redlining", "segregation"
+  ]
+};
+
+function norm(s){ return String(s || "").toLowerCase(); }
+
+function countHits(text, needles){
+  const t = norm(text);
+  let hits = [];
+  for (const n of needles){
+    const needle = norm(n);
+    if (!needle) continue;
+    if (t.includes(needle)) hits.push(n);
+  }
+  return hits;
+}
+
+function gateTest(text){
+  const t = norm(text);
+
+  // Gate triggers
+  const gates = {};
+  for (const [gate, words] of Object.entries(GATE_RULES.impact_gates)){
+    const hits = countHits(t, words);
+    if (hits.length) gates[gate] = hits.slice(0, 8); // keep short
+  }
+
+  const leverHits = countHits(t, GATE_RULES.required_lever_signals);
+  const blockHits = countHits(t, GATE_RULES.blocked_discourse_signals);
+  const blackCueHits = countHits(t, GATE_RULES.black_relevance_cues);
+
+  const gateTriggered = Object.keys(gates).length > 0;
+
+  // Conservative eligibility:
+  // - Must hit at least 1 impact gate
+  // - Must hit at least 1 lever signal
+  // - If it looks discourse-heavy AND has no lever, block
+  const discourseHeavy = blockHits.length >= 2 && leverHits.length === 0;
+
+  const eligible =
+    gateTriggered &&
+    leverHits.length >= 1 &&
+    !discourseHeavy;
+
+  // Optional: require a Black cue IF the story is generic policy and only hits "policy/rights"
+  // (keeps mainstream from flooding you with general politics)
+  const onlyPolicyGate = gateTriggered && Object.keys(gates).length === 1 && gates["policy/rights"];
+  const needsCue = onlyPolicyGate; // tune later
+  const cueOk = !needsCue || blackCueHits.length >= 1;
+
+  const finalEligible = eligible && cueOk;
+
+  let reason = [];
+  if (!gateTriggered) reason.push("No impact gate triggered.");
+  if (leverHits.length === 0) reason.push("No operational lever signal found (law/funding/enforcement/court).");
+  if (discourseHeavy) reason.push("Looks discourse-only (controversy/backlash) without a lever.");
+  if (needsCue && blackCueHits.length === 0) reason.push("Generic policy hit only—missing Black relevance cue.");
+
+  return {
+    gateTriggered,
+    gates,
+    leverHits: leverHits.slice(0, 10),
+    blockHits: blockHits.slice(0, 10),
+    blackCueHits: blackCueHits.slice(0, 10),
+    eligible: finalEligible,
+    notes: finalEligible
+      ? ["Mainstream inclusion OK: impact gate + lever present.", needsCue ? "Black relevance cue satisfied." : "Black cue not required for this mix of gates."]
+      : reason
+  };
+}
+
+/* =========================
+   UI RENDER
+   ========================= */
+const el = (id) => document.getElementById(id);
+
+function pillClass(label){
+  if (label === "black-owned") return "green";
+  if (label === "black-led") return "green";
+  if (label === "black-focused") return "wine";
+  if (label === "collaborative") return "dark";
+  if (label === "mainstream-conditional") return "red";
+  return "";
+}
+
+function render(){
+  const dataset = el("set").value;
+  const labelFilter = el("label").value;
+  const q = norm(el("q").value);
+
+  let data = [];
+  if (dataset === "black") data = BLACK_REGISTRY.slice();
+  if (dataset === "mainstream") data = MAINSTREAM_REGISTRY.slice();
+  if (dataset === "both") data = BLACK_REGISTRY.concat(MAINSTREAM_REGISTRY);
+
+  if (labelFilter !== "all"){
+    data = data.filter(x => x.label === labelFilter);
+  }
+
+  if (q){
+    data = data.filter(x => {
+      const hay = [
+        x.name, x.site, x.rss,
+        (x.focus || []).join(" "),
+        x.notes,
+        x.bias_risk_notes
+      ].join(" ");
+      return norm(hay).includes(q);
+    });
+  }
+
+  el("count").textContent = `${data.length} sources shown`;
+
+  const list = el("list");
+  list.innerHTML = "";
+  for (const s of data){
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const h = document.createElement("h3");
+    h.textContent = s.name;
+    card.appendChild(h);
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+
+    const tag1 = document.createElement("span");
+    tag1.className = `tag`;
+    tag1.textContent = `label: ${s.label}`;
+    meta.appendChild(tag1);
+
+    if (s.scope){
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = `scope: ${s.scope}`;
+      meta.appendChild(tag);
+    }
+
+    if (s.institution_type){
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = `type: ${s.institution_type}`;
+      meta.appendChild(tag);
+    } else if (s.publisher_type){
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = `publisher: ${s.publisher_type}`;
+      meta.appendChild(tag);
+    }
+
+    if (s.status){
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = `status: ${s.status}`;
+      meta.appendChild(tag);
+    }
+
+    card.appendChild(meta);
+
+    const small = document.createElement("div");
+    small.className = "small";
+    const focus = (s.focus && s.focus.length) ? `Focus: ${s.focus.join(", ")}.` : "";
+    const fmt = (s.format && s.format.length) ? ` Format: ${s.format.join(", ")}.` : "";
+    const freq = s.update_frequency ? ` Updates: ${s.update_frequency}.` : "";
+    const checked = s.last_checked ? ` Checked: ${s.last_checked}.` : "";
+    small.textContent = [focus, fmt, freq, checked].join("");
+    card.appendChild(small);
+
+    if (s.bias_risk_notes){
+      const br = document.createElement("div");
+      br.className = "small";
+      br.style.marginTop = "6px";
+      br.innerHTML = `<b>Bias risk:</b> ${escapeHtml(s.bias_risk_notes)}`;
+      card.appendChild(br);
+    }
+
+    if (s.notes){
+      const n = document.createElement("div");
+      n.className = "small";
+      n.style.marginTop = "6px";
+      n.innerHTML = `<b>Notes:</b> ${escapeHtml(s.notes)}`;
+      card.appendChild(n);
+    }
+
+    const links = document.createElement("div");
+    links.className = "links";
+    links.innerHTML = `
+      <a href="${s.site}" target="_blank" rel="noopener">Site</a>
+      <a href="${s.rss}" target="_blank" rel="noopener">RSS</a>
+    `;
+    card.appendChild(links);
+
+    list.appendChild(card);
+  }
+}
+
+function escapeHtml(str){
+  return String(str || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function renderResult(res){
+  const box = el("result");
+  const gates = Object.keys(res.gates || {});
+  const gateLine = gates.length ? gates.join(", ") : "none";
+
+  const gatePills = gates.length
+    ? gates.map(g => `<span class="pill ${g === "targeted_harm" ? "red" : g === "disparity" ? "wine" : "dark"}">${escapeHtml(g)}</span>`).join(" ")
+    : `<span class="pill">none</span>`;
+
+  box.innerHTML = `
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+      <div>
+        <div class="small">Impact gates triggered:</div>
+        <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">${gatePills}</div>
+      </div>
+      <div style="min-width:220px;">
+        <div class="small">Mainstream eligible?</div>
+        <div style="margin-top:6px; font-size:16px;">
+          ${res.eligible ? `<span class="ok">YES</span>` : `<span class="bad">NO</span>`}
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:10px;" class="small">
+      <b>Lever signals hit:</b> ${res.leverHits.length ? escapeHtml(res.leverHits.join(" · ")) : "none"}
+      <br/>
+      <b>Discourse blocks hit:</b> ${res.blockHits.length ? escapeHtml(res.blockHits.join(" · ")) : "none"}
+      <br/>
+      <b>Black relevance cues hit:</b> ${res.blackCueHits.length ? escapeHtml(res.blackCueHits.join(" · ")) : "none"}
+    </div>
+
+    <div style="margin-top:10px;" class="small">
+      <b>Notes:</b>
+      <ul style="margin:6px 0 0 18px; padding:0;">
+        ${res.notes.map(x => `<li>${escapeHtml(x)}</li>`).join("")}
+      </ul>
+    </div>
+  `;
+}
+
+async function copyToClipboard(text){
+  try{
+    await navigator.clipboard.writeText(text);
+    alert("Copied to clipboard.");
+  }catch(e){
+    // fallback
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    ta.remove();
+    alert("Copied to clipboard (fallback).");
+  }
+}
+
+el("q").addEventListener("input", render);
+el("set").addEventListener("change", render);
+el("label").addEventListener("change", render);
+
+el("run").addEventListener("click", () => {
+  const text = el("text").value || "";
+  const res = gateTest(text);
+  renderResult(res);
+});
+
+el("fillExample").addEventListener("click", () => {
+  el("text").value =
+`State begins enforcing expanded SNAP work requirements Feb. 1, with narrower exemptions and fewer waivers, putting thousands at risk of losing benefits as verification tightens, according to state guidance and federal projections.`;
+});
+
+el("copyRules").addEventListener("click", () => {
+  copyToClipboard(JSON.stringify(GATE_RULES, null, 2));
+});
+
+el("copyMerged").addEventListener("click", () => {
+  const merged = {
+    black_registry: BLACK_REGISTRY,
+    mainstream_conditional_registry: MAINSTREAM_REGISTRY,
+    gate_rules: GATE_RULES
+  };
+  copyToClipboard(JSON.stringify(merged, null, 2));
+});
+
+render();
+</script>
+</body>
+</html>
