@@ -7,6 +7,7 @@
  *
  * No storage, no KV. Just short caching at the edge.
  */
+import PERSON_INFLUENCE from "../feeds/person_influence.json" assert { type: "json" };
 
 const FEEDS_BASE =
   "https://raw.githubusercontent.com/princenyc/blacksignals/main/feeds";
@@ -92,6 +93,50 @@ async function buildStream() {
       const text = `${it.title} ${it.description ?? ""}`.toLowerCase();
       const exclusions = (impactTerms.exclusions ?? []).map((x) => x.toLowerCase());
       if (exclusions.some((ex) => text.includes(ex))) return false;
+
+      function normalizeText(s) {
+  return (s || "")
+    .toLowerCase()
+    .replace(/&amp;/g, "&")
+    .replace(/&#8217;|&apos;/g, "'")
+    .replace(/[^a-z0-9\s'\-\.]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function applyPersonInfluenceBoost({ title, source, baseScore }) {
+  const t = normalizeText(title);
+
+  let boost = 0;
+  const reasons = [];
+
+  for (const person of (PERSON_INFLUENCE?.people || [])) {
+    const personBoost = Number(person.boost || 0);
+    if (!personBoost) continue;
+
+    const names = [person.name, ...(person.aliases || [])]
+      .filter(Boolean)
+      .map(normalizeText);
+
+    // Match whole words/phrases safely
+    const hit = names.find(n => n && t.includes(n));
+    if (hit) {
+      boost += personBoost;
+      reasons.push(`person:${person.name}`);
+    }
+  }
+
+  // Optional: tiny extra bump if it’s one of your “must-see” sources
+  // (You can remove this if you don’t want it.)
+  if (PERSON_INFLUENCE?.source_bonus?.[source]) {
+    boost += Number(PERSON_INFLUENCE.source_bonus[source] || 0);
+    reasons.push(`source_bonus:${source}`);
+  }
+
+  const finalScore = Math.min(999, baseScore + boost);
+
+  return { finalScore, boost, reasons };
+}
 
       return it.impact_score >= threshold;
     });
