@@ -5,6 +5,13 @@
  * - Keeps rolling last N hours only
  * - Dedupes & returns a single sorted list (headline + source + score)
  * - No storage. Uses short caching at the edge.
+ *
+ * NEW in this version:
+ * - Robust feed JSON loading (supports multiple shapes, not just {feeds:[]})
+ * - Proxy fallback for blocked feeds (default Jina relay, optional env.PROXY_BASE)
+ * - Debug endpoints:
+ *    /api/debug/config
+ *    /api/debug/fetch?url=...
  */
 
 const FEEDS_BASE =
@@ -13,7 +20,7 @@ const FEEDS_BASE =
 const KAGI_INPUTS_PATH = "kagi_inputs.json";
 const CURATED_FEEDS_PATH = "curated_black_us.json";
 const IMPACT_TERMS_PATH = "impact_terms.json";
-const INFLUENCE_PATH = "person_influence.json"; // <-- change if your filename differs
+const INFLUENCE_PATH = "person_influence.json";
 
 const DEFAULT_CACHE_SECONDS = 900; // 15 min
 const DEFAULT_WINDOW_HOURS = 3;
@@ -25,40 +32,116 @@ export default {
     // CORS preflight
     if (request.method === "OPTIONS") return handleOptions();
 
-    // Routes
+    // Health
     if (url.pathname === "/" || url.pathname === "/api/health") {
-      return json(withCors({ ok: true, service: "blacksignals-stream-worker", now: new Date().toISOString() }));
+      return json(
+        withCors({
+          ok: true,
+          service: "blacksignals-stream-worker",
+          now: new Date().toISOString(),
+        })
+      );
     }
 
-    if (url.pathname === "/api/stream") {
-      // Allow overriding window/cache for testing:
-      // /api/stream?window=6&cache=60
-      const windowHours = clampInt(url.searchParams.get("window"), 1, 48, DEFAULT_WINDOW_HOURS);
-      const cacheSeconds = clampInt(url.searchParams.get("cache"), 0, 86400, DEFAULT_CACHE_SECONDS);
+    // Debug: show loaded config + derived feeds
+    if (url.pathname === "/api/debug/config") {
+      const [kagiInputs, curatedFeeds, impactTerms, influence] =
+        await Promise.all([
+          fetchJson(`${FEEDS_BASE}/${KAGI_INPUTS_PATH}`, { fallback: null }),
+          fetchJson(`${FEEDS_BASE}/${CURATED_FEEDS_PATH}`, { fallback: null }),
+          fetchJson(`${FEEDS_BASE}/${IMPACT_TERMS_PATH}`, { fallback: null }),
+          fetchJson(`${FEEDS_BASE}/${INFLUENCE_PATH}`, { fallback: null }),
+        ]);
 
-      // Cache key includes parameters that affect output
+      const kagiList = extractFeedList(kagiInputs);
+      const curatedList = extractFeedList(curatedFeeds);
+
+      const feeds = normalizeFeeds([...kagiList], "kagi").concat(
+        normalizeFeeds([...curatedList], "curated")
+      );
+
+      return json(
+        withCors({
+          ok: true,
+          paths: {
+            kagi: `${FEEDS_BASE}/${KAGI_INPUTS_PATH}`,
+            curated: `${FEEDS_BASE}/${CURATED_FEEDS_PATH}`,
+            impact: `${FEEDS_BASE}/${IMPACT_TERMS_PATH}`,
+            influence: `${FEEDS_BASE}/${INFLUENCE_PATH}`,
+          },
+          counts: {
+            kagi_raw: Array.isArray(kagiList) ? kagiList.length : 0,
+            curated_raw: Array.isArray(curatedList) ? curatedList.length : 0,
+            feeds_total: feeds.length,
+            impact_phrases: Array.isArray(impactTerms?.phrases)
+              ? impactTerms.phrases.length
+              : 0,
+            impact_words: Array.isArray(impactTerms?.words)
+              ? impactTerms.words.length
+              : 0,
+            influence_people: Array.isArray(influence?.people)
+              ? influence.people.length
+              : 0,
+          },
+          sample_feeds: feeds.slice(0, 25),
+          notes:
+            "If feeds_total is 0, your JSON shape doesn’t match what the worker expects. If feeds_total > 0 but stream is empty, most feeds may be blocked and need proxy fallback (this worker includes it).",
+        })
+      );
+    }
+
+    // Debug: test one feed fetch + parse
+    if (url.pathname === "/api/debug/fetch") {
+      const testUrl = url.searchParams.get("url");
+      if (!testUrl) {
+        return json(withCors({ ok: false, error: "Missing ?url=" }), 400);
+      }
+      const out = await debugFetchOne(testUrl, env);
+      return json(withCors(out), 200);
+    }
+
+    // Stream
+    if (url.pathname === "/api/stream") {
+      // /api/stream?window=6&cache=60
+      const windowHours = clampInt(
+        url.searchParams.get("window"),
+        1,
+        48,
+        DEFAULT_WINDOW_HOURS
+      );
+      const cacheSeconds = clampInt(
+        url.searchParams.get("cache"),
+        0,
+        86400,
+        DEFAULT_CACHE_SECONDS
+      );
+
+      // Cache key includes params that affect output
       const cacheKey = new Request(
         `${url.origin}${url.pathname}?window=${windowHours}&cache=${cacheSeconds}`,
         request
       );
 
-      // Edge cache
       const cached = await caches.default.match(cacheKey);
-      if (cached) return withCors(cached);
+      if (cached) return withCorsResponse(cached);
 
       const started = Date.now();
-      const result = await buildStream({ windowHours });
+      const result = await buildStream({ windowHours }, env);
 
-      const res = json(result, 200, {
-        "Cache-Control": `public, max-age=${cacheSeconds}`,
-        "X-Worker-Time-MS": String(Date.now() - started),
-      });
+      const res = json(
+        withCors(result),
+        200,
+        {
+          "Cache-Control": `public, max-age=${cacheSeconds}`,
+          "X-Worker-Time-MS": String(Date.now() - started),
+        }
+      );
 
       ctx.waitUntil(caches.default.put(cacheKey, res.clone()));
-      return withCors(res);
+      return withCorsResponse(res);
     }
 
-    return withCors(json({ ok: false, error: "Not found" }, 404));
+    return withCorsResponse(json(withCors({ ok: false, error: "Not found" }), 404));
   },
 };
 
@@ -66,43 +149,39 @@ export default {
    Core pipeline
 ---------------------------- */
 
-async function buildStream({ windowHours }) {
-  // Load configs
-  const [kagiInputs, curatedFeeds, impactTerms, influence] = await Promise.all([
-    fetchJson(`${FEEDS_BASE}/${KAGI_INPUTS_PATH}`, { fallback: { feeds: [] } }),
-    fetchJson(`${FEEDS_BASE}/${CURATED_FEEDS_PATH}`, { fallback: { feeds: [] } }),
-    fetchJson(`${FEEDS_BASE}/${IMPACT_TERMS_PATH}`, { fallback: defaultImpactTerms() }),
-    fetchJson(`${FEEDS_BASE}/${INFLUENCE_PATH}`, { fallback: { people: [] } }),
-  ]);
+async function buildStream({ windowHours }, env) {
+  const [kagiInputs, curatedFeeds, impactTermsRaw, influenceRaw] =
+    await Promise.all([
+      fetchJson(`${FEEDS_BASE}/${KAGI_INPUTS_PATH}`, { fallback: null }),
+      fetchJson(`${FEEDS_BASE}/${CURATED_FEEDS_PATH}`, { fallback: null }),
+      fetchJson(`${FEEDS_BASE}/${IMPACT_TERMS_PATH}`, { fallback: defaultImpactTerms() }),
+      fetchJson(`${FEEDS_BASE}/${INFLUENCE_PATH}`, { fallback: { people: [] } }),
+    ]);
 
-  // Normalize feed lists
-  const feeds = [];
-  // Kagi list might be { feeds: [{url,label,weight,origin}] } or an array; we support both
-  const kagiFeedList = Array.isArray(kagiInputs) ? kagiInputs : (kagiInputs.feeds || []);
-  const curatedFeedList = Array.isArray(curatedFeeds) ? curatedFeeds : (curatedFeeds.feeds || []);
+  // Extract feeds from whatever shape the JSON is in
+  const kagiList = extractFeedList(kagiInputs);
+  const curatedList = extractFeedList(curatedFeeds);
 
-  for (const f of kagiFeedList) {
-    if (!f?.url) continue;
-    feeds.push({
-      url: f.url,
-      label: f.label || f.source || guessHostname(f.url),
-      weight: numOr(f.weight, 1),
-      origin: "kagi",
-    });
-  }
-  for (const f of curatedFeedList) {
-    if (!f?.url) continue;
-    feeds.push({
-      url: f.url,
-      label: f.label || f.source || guessHostname(f.url),
-      weight: numOr(f.weight, 1),
-      origin: "curated",
-    });
+  const feeds = normalizeFeeds(kagiList, "kagi").concat(
+    normalizeFeeds(curatedList, "curated")
+  );
+
+  // If you get 0 feeds, return early with a clear reason
+  if (!feeds.length) {
+    return {
+      ok: true,
+      generated_at: new Date().toISOString(),
+      window_hours: windowHours,
+      count: 0,
+      items: [],
+      debug: {
+        reason: "No feeds loaded. Check /api/debug/config to confirm JSON shape.",
+      },
+    };
   }
 
-  // Influence structure expected:
-  // { people: [ { name, role?, boost?, aliases?:[] } ] }
-  const influenceIndex = buildInfluenceIndex(influence);
+  const impactTerms = normalizeImpactTerms(impactTermsRaw);
+  const influenceIndex = buildInfluenceIndex(influenceRaw);
 
   const now = Date.now();
   const windowMs = windowHours * 60 * 60 * 1000;
@@ -110,7 +189,7 @@ async function buildStream({ windowHours }) {
 
   // Fetch & parse feeds in parallel (bounded)
   const items = await mapWithConcurrency(feeds, 8, async (feed) => {
-    const parsed = await fetchAndParseFeed(feed.url);
+    const parsed = await fetchAndParseFeed(feed.url, env, feed);
     return parsed.map((it) => ({
       ...it,
       feed_label: feed.label,
@@ -119,7 +198,7 @@ async function buildStream({ windowHours }) {
     }));
   }).then((arrays) => arrays.flat());
 
-  // Filter to window; if published date missing, keep but treat as "weak recency"
+  // Filter to window; if published missing, keep but weak recency
   const recent = items.filter((it) => {
     if (!it.published_at) return true;
     const t = Date.parse(it.published_at);
@@ -131,14 +210,14 @@ async function buildStream({ windowHours }) {
   const deduped = dedupeItems(recent);
 
   // Score
-  const scored = deduped.map((it) => scoreItem(it, { impactTerms, influenceIndex, now }));
+  const scored = deduped.map((it) =>
+    scoreItem(it, { impactTerms, influenceIndex, now })
+  );
 
   // Sort: score desc then newest first
   scored.sort((a, b) => {
     if (b.impact_score !== a.impact_score) return b.impact_score - a.impact_score;
-    const ta = safeTime(a.published_at);
-    const tb = safeTime(b.published_at);
-    return tb - ta;
+    return safeTime(b.published_at) - safeTime(a.published_at);
   });
 
   return {
@@ -150,6 +229,33 @@ async function buildStream({ windowHours }) {
   };
 }
 
+function normalizeFeeds(list, origin) {
+  const arr = Array.isArray(list) ? list : [];
+  const out = [];
+
+  for (const f of arr) {
+    // Support both {url,label,weight} and {feedUrl,source,major,blackOwned,...}
+    const url = f?.url || f?.feedUrl;
+    if (!url) continue;
+
+    out.push({
+      url,
+      label: f.label || f.source || guessHostname(url),
+      weight: numOr(f.weight, 1),
+      origin,
+    });
+  }
+
+  return out;
+}
+
+function normalizeImpactTerms(impactTerms) {
+  return {
+    phrases: Array.isArray(impactTerms?.phrases) ? impactTerms.phrases : [],
+    words: Array.isArray(impactTerms?.words) ? impactTerms.words : [],
+  };
+}
+
 function scoreItem(item, { impactTerms, influenceIndex, now }) {
   const title = item.title || "";
   const source = item.source || item.feed_label || "";
@@ -157,33 +263,29 @@ function scoreItem(item, { impactTerms, influenceIndex, now }) {
 
   const haystack = normalizeText(`${title} ${source}`);
 
-  // --- Base scoring components ---
   let score = 0;
   const match_reasons = [];
 
-  // 1) Source weight (authority proxy)
-  // feed_weight defaults to 1; allow stronger sources to float
+  // 1) Source weight
   const sourceWeight = numOr(item.feed_weight, 1);
   score += Math.round(40 * sourceWeight);
   match_reasons.push(`source_weight:${sourceWeight}`);
 
-  // 2) Recency (stronger within the window)
-  // If published is missing, give minimal recency points
+  // 2) Recency
   const recencyPoints = recencyScore(publishedAt, now);
   score += recencyPoints.points;
   match_reasons.push(recencyPoints.reason);
 
-  // 3) Impact terms (keywords / phrases)
+  // 3) Impact terms
   const impact = impactScore(haystack, impactTerms);
   score += impact.points;
   if (impact.reasons.length) match_reasons.push(...impact.reasons);
 
-  // 4) Influence boost (named people + aliases)
+  // 4) Influence boost (highest single boost per article)
   const infl = influenceBoost(haystack, influenceIndex);
   score += infl.points;
   if (infl.reasons.length) match_reasons.push(...infl.reasons);
 
-  // Clamp and round
   score = clampInt(score, 0, 999, 0);
 
   return {
@@ -199,22 +301,19 @@ function scoreItem(item, { impactTerms, influenceIndex, now }) {
 
 /* ---------------------------
    Influence logic
+   - Uses your feeds/person_influence.json
+   - Highest single boost per article (no stacking)
 ---------------------------- */
 
 function buildInfluenceIndex(influenceJson) {
   const people = Array.isArray(influenceJson?.people) ? influenceJson.people : [];
 
-  // We build:
-  // - list of { name, boost, patterns[] }
-  // - combined regex scanning is tricky with aliases; we keep per-person patterns
   const normalized = people
     .filter((p) => p && p.name)
     .map((p) => {
-      const boost = clampInt(p.boost, 0, 300, 60); // default boost if not provided
+      const boost = clampInt(p.boost, 0, 300, 60);
       const aliases = Array.isArray(p.aliases) ? p.aliases : [];
       const needles = [p.name, ...aliases].filter(Boolean).map(String);
-
-      // We match whole words loosely; for multi-word names we match phrase boundaries
       const patterns = needles.map((n) => new RegExp(boundaryRegex(n), "i"));
 
       return {
@@ -229,8 +328,7 @@ function buildInfluenceIndex(influenceJson) {
 }
 
 function influenceBoost(haystack, influenceIndex) {
-  let points = 0;
-  const reasons = [];
+  let best = { points: 0, reason: "" };
 
   for (const p of influenceIndex.people) {
     let hit = false;
@@ -240,15 +338,14 @@ function influenceBoost(haystack, influenceIndex) {
         break;
       }
     }
-    if (hit) {
-      points += p.boost;
-      reasons.push(`influence:${p.name}:${p.boost}`);
+    if (hit && p.boost > best.points) {
+      best = { points: p.boost, reason: `influence:${p.name}:${p.boost}` };
     }
   }
 
-  // Keep influence from dominating everything
-  points = clampInt(points, 0, 350, points);
-  return { points, reasons };
+  return best.points
+    ? { points: clampInt(best.points, 0, 350, best.points), reasons: [best.reason] }
+    : { points: 0, reasons: [] };
 }
 
 /* ---------------------------
@@ -256,7 +353,6 @@ function influenceBoost(haystack, influenceIndex) {
 ---------------------------- */
 
 function defaultImpactTerms() {
-  // Fallback if file missing; keep minimal
   return {
     phrases: [
       { term: "voting rights", weight: 70 },
@@ -280,7 +376,6 @@ function impactScore(haystack, impactTerms) {
   const phrases = Array.isArray(impactTerms?.phrases) ? impactTerms.phrases : [];
   const words = Array.isArray(impactTerms?.words) ? impactTerms.words : [];
 
-  // phrases: substring match (case-insensitive via normalized haystack)
   for (const p of phrases) {
     if (!p?.term) continue;
     const term = normalizeText(String(p.term));
@@ -292,7 +387,6 @@ function impactScore(haystack, impactTerms) {
     }
   }
 
-  // words: whole word regex
   for (const wobj of words) {
     if (!wobj?.term) continue;
     const term = String(wobj.term).trim();
@@ -305,7 +399,6 @@ function impactScore(haystack, impactTerms) {
     }
   }
 
-  // Cap impact points so it doesn’t explode
   points = clampInt(points, 0, 450, points);
   return { points, reasons };
 }
@@ -322,11 +415,6 @@ function recencyScore(publishedAt, nowMs) {
 
   const ageMin = Math.max(0, Math.floor((nowMs - t) / 60000));
 
-  // Points curve: freshest gets more; fades quickly
-  // 0–30 min: 120
-  // 30–90 min: 80
-  // 90–180 min: 40
-  // older: 10
   let points = 10;
   if (ageMin <= 30) points = 120;
   else if (ageMin <= 90) points = 80;
@@ -336,27 +424,130 @@ function recencyScore(publishedAt, nowMs) {
 }
 
 /* ---------------------------
-   Feed fetching + parsing
+   Feed fetching + parsing (with proxy fallback)
 ---------------------------- */
 
-async function fetchAndParseFeed(feedUrl) {
-  const res = await fetch(feedUrl, {
-    headers: {
-      "User-Agent": "BlackSignalsWorker/1.0",
-      "Accept": "application/rss+xml, application/xml, text/xml, */*",
-    },
+async function fetchAndParseFeed(feedUrl, env, feedMeta) {
+  const ua = "BlackSignalsWorker/2.0 (+https://blacksignals.org)";
+  const headers = {
+    "User-Agent": ua,
+    Accept: "application/rss+xml, application/xml, text/xml, */*",
+  };
+
+  // 1) Direct
+  const direct = await fetchWithMeta(feedUrl, { headers });
+  if (looksLikeXmlFeed(direct)) {
+    return parseXmlFeed(cleanToXML(direct.text));
+  }
+
+  // 2) Proxy fallback (default ON)
+  const allowProxy = feedMeta?.allowProxy !== false;
+  if (!allowProxy) return [];
+
+  const proxyUrl = buildProxyUrl(feedUrl, env);
+  const proxied = await fetchWithMeta(proxyUrl, {
+    headers: { ...headers, Referer: "https://blacksignals.org" },
   });
 
-  if (!res.ok) return [];
+  if (looksLikeXmlFeed(proxied, true)) {
+    return parseXmlFeed(cleanToXML(proxied.text));
+  }
 
-  const text = await res.text();
-  // Quick sniff: RSS/Atom XML
-  return parseXmlFeed(text);
+  return [];
+}
+
+async function debugFetchOne(feedUrl, env) {
+  const ua = "BlackSignalsWorker/2.0 (+https://blacksignals.org)";
+  const headers = {
+    "User-Agent": ua,
+    Accept: "application/rss+xml, application/xml, text/xml, */*",
+  };
+
+  const direct = await fetchWithMeta(feedUrl, { headers });
+  const proxyUrl = buildProxyUrl(feedUrl, env);
+  const proxied = await fetchWithMeta(proxyUrl, { headers });
+
+  const directLooks = looksLikeXmlFeed(direct);
+  const proxyLooks = looksLikeXmlFeed(proxied, true);
+
+  const chosen = directLooks ? direct : (proxyLooks ? proxied : direct);
+  const parsed = directLooks || proxyLooks ? parseXmlFeed(cleanToXML(chosen.text)) : [];
+
+  return {
+    ok: true,
+    feedUrl,
+    proxyUrlUsed: proxyUrl,
+    direct: {
+      status: direct.status,
+      ok: direct.ok,
+      contentType: direct.contentType,
+      first200: direct.first200,
+      looksLikeFeed: directLooks,
+    },
+    proxy: {
+      status: proxied.status,
+      ok: proxied.ok,
+      contentType: proxied.contentType,
+      first200: proxied.first200,
+      looksLikeFeed: proxyLooks,
+    },
+    parsedCount: parsed.length,
+    sampleTitles: parsed.slice(0, 10).map((x) => x.title),
+  };
+}
+
+async function fetchWithMeta(url, options) {
+  try {
+    const res = await fetch(url, options);
+    const contentType = res.headers.get("content-type") || "";
+    const text = await res.text();
+    return {
+      status: res.status,
+      ok: res.ok,
+      contentType,
+      text,
+      first200: text.slice(0, 200),
+    };
+  } catch (e) {
+    return {
+      status: 0,
+      ok: false,
+      contentType: "",
+      text: "",
+      first200: `fetch_error:${String(e && e.message ? e.message : e)}`.slice(0, 200),
+    };
+  }
+}
+
+function looksLikeXmlFeed(meta) {
+  if (!meta || !meta.ok) return false;
+
+  const ct = (meta.contentType || "").toLowerCase();
+  const t = (meta.text || "").toLowerCase();
+
+  // obvious blocks/html
+  if (ct.includes("text/html")) return false;
+  if (t.includes("captcha") || t.includes("sgcaptcha")) return false;
+
+  // xml/feeds
+  if (ct.includes("xml") || ct.includes("rss") || ct.includes("atom")) return true;
+  return t.includes("<rss") || t.includes("<feed") || t.includes("<channel") || t.includes("<item");
+}
+
+function cleanToXML(s) {
+  const idx = (s || "").indexOf("<");
+  return idx >= 0 ? s.slice(idx) : s;
+}
+
+function buildProxyUrl(feedUrl, env) {
+  if (env && env.PROXY_BASE) {
+    return `${env.PROXY_BASE}${encodeURIComponent(feedUrl)}`;
+  }
+  // Default Jina relay:
+  return `https://r.jina.ai/${feedUrl}`;
 }
 
 function parseXmlFeed(xmlText) {
-  // We don’t have DOMParser in Workers reliably in every mode; use simple regex parsing.
-  // This is intentionally conservative: title/link/pubDate for RSS; title/link/updated for Atom.
   const items = [];
 
   const isAtom = /<feed[\s>]/i.test(xmlText) && /<entry[\s>]/i.test(xmlText);
@@ -370,20 +561,18 @@ function parseXmlFeed(xmlText) {
         decodeHtml(extractTag(e, "link")) ||
         "";
       const updated = extractTag(e, "updated") || extractTag(e, "published") || "";
-      const source = ""; // not always present
       if (title && link) {
         items.push({
           title: title.trim(),
           url: link.trim(),
-          source,
-          published_at: updated ? new Date(updated).toISOString() : null,
+          source: "",
+          published_at: updated ? safeIso(updated) : null,
         });
       }
     }
     return items;
   }
 
-  // RSS
   const rssItems = xmlText.match(/<item[\s\S]*?<\/item>/gi) || [];
   for (const it of rssItems) {
     const title = decodeHtml(extractTag(it, "title")) || "";
@@ -401,6 +590,31 @@ function parseXmlFeed(xmlText) {
     }
   }
   return items;
+}
+
+/* ---------------------------
+   Feed list extraction (robust)
+---------------------------- */
+
+function extractFeedList(jsonObj) {
+  if (!jsonObj) return [];
+
+  // Already an array? assume array of feeds
+  if (Array.isArray(jsonObj)) return jsonObj;
+
+  // Common keys
+  const candidateKeys = ["feeds", "sources", "items", "list", "input", "inputs"];
+  for (const k of candidateKeys) {
+    if (Array.isArray(jsonObj[k])) return jsonObj[k];
+  }
+
+  // If it's an object of objects: { "Capital B": {url:...}, ... }
+  // return values that look like feeds
+  const vals = Object.values(jsonObj);
+  const looks = vals.filter((v) => v && (v.url || v.feedUrl));
+  if (looks.length) return looks;
+
+  return [];
 }
 
 /* ---------------------------
@@ -459,8 +673,6 @@ function escapeRegExp(s) {
 }
 
 function boundaryRegex(nameOrAlias) {
-  // Creates a regex string that tries to match a name as a phrase boundary.
-  // Example: "Wes Moore" => \bwes\s+moore\b
   const n = normalizeText(nameOrAlias);
   const parts = n.split(" ").filter(Boolean).map(escapeRegExp);
   if (parts.length === 1) return `\\b${parts[0]}\\b`;
@@ -484,9 +696,7 @@ function clampInt(v, min, max, fallback) {
 
 async function fetchJson(url, { fallback }) {
   try {
-    const res = await fetch(url, {
-      headers: { "Accept": "application/json" },
-    });
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
     if (!res.ok) return fallback;
     return await res.json();
   } catch {
@@ -528,7 +738,11 @@ function json(data, status = 200, extraHeaders = {}) {
   });
 }
 
-function withCors(res) {
+function withCors(obj) {
+  return obj;
+}
+
+function withCorsResponse(res) {
   const headers = new Headers(res.headers);
   headers.set("Access-Control-Allow-Origin", "*");
   headers.set("Access-Control-Allow-Methods", "GET,OPTIONS");
@@ -555,7 +769,6 @@ function handleOptions() {
 
 function decodeHtml(s) {
   if (!s) return "";
-  // Decode the few that show up most in RSS
   return String(s)
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
@@ -577,7 +790,10 @@ function extractTag(block, tagName) {
 }
 
 function extractAttrFromTag(block, tagName, attrName) {
-  const re = new RegExp(`<${tagName}[^>]*\\s${attrName}="([^"]+)"[^>]*\\/?>`, "i");
+  const re = new RegExp(
+    `<${tagName}[^>]*\\s${attrName}="([^"]+)"[^>]*\\/?>`,
+    "i"
+  );
   const m = block.match(re);
   return m ? m[1] : "";
 }
