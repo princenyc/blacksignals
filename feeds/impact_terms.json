@@ -1,0 +1,86 @@
+{
+  "version": "1.0",
+  "description": "Impact Trigger Terms for BlackSignals Kagi Filtering",
+  "threshold_score": 3,
+  "tiers": {
+    "tier1_high_confidence": {
+      "weight": 3,
+      "terms": [
+        "redlining",
+        "housing discrimination",
+        "voting rights",
+        "police misconduct",
+        "mass incarceration",
+        "sentencing reform",
+        "school funding inequity",
+        "environmental justice",
+        "HBCU",
+        "Section 8",
+        "SNAP cuts",
+        "Medicaid expansion",
+        "urban renewal",
+        "racial profiling",
+        "civil rights investigation"
+      ]
+    },
+    "tier2_structural_coded": {
+      "weight": 2,
+      "terms": [
+        "underserved",
+        "underprivileged",
+        "inner city",
+        "urban community",
+        "low-income neighborhoods",
+        "minority communities",
+        "public housing",
+        "school district funding",
+        "community policing",
+        "food desert",
+        "economic mobility",
+        "equity program",
+        "public defender funding",
+        "affordable housing crisis"
+      ]
+    },
+    "tier3_guarded_terms": {
+      "weight": 1,
+      "terms": [
+        "urban",
+        "diversity",
+        "equity",
+        "reform",
+        "crime",
+        "poverty",
+        "protest",
+        "housing",
+        "gentrification",
+        "bail reform"
+      ]
+    }
+  },
+  "context_boosters": {
+    "weight": 1,
+    "terms": [
+      "Harlem",
+      "South Side",
+      "Bronx",
+      "Baltimore",
+      "Detroit",
+      "Atlanta",
+      "Ferguson",
+      "DOJ investigation",
+      "HUD",
+      "school board",
+      "city council",
+      "public health department"
+    ]
+  },
+  "exclusions": [
+    "black friday",
+    "black hole",
+    "black box",
+    "black market",
+    "urban fashion",
+    "diversity in tech conference"
+  ]
+}
