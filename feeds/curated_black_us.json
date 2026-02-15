@@ -1,0 +1,67 @@
+{
+  "version": "1.0",
+  "description": "Curated Black US News RSS Registry",
+  "auto_include": true,
+  "feeds": [
+    {
+      "name": "The Root",
+      "rss_url": "https://www.theroot.com/rss",
+      "category": "culture",
+      "priority": 3
+    },
+    {
+      "name": "Word In Black",
+      "rss_url": "https://wordinblack.com/feed/",
+      "category": "news",
+      "priority": 5
+    },
+    {
+      "name": "Capital B News",
+      "rss_url": "https://capitalbnews.org/feed/",
+      "category": "politics",
+      "priority": 5
+    },
+    {
+      "name": "The Grio",
+      "rss_url": "https://thegrio.com/feed/",
+      "category": "news",
+      "priority": 3
+    },
+    {
+      "name": "Black Enterprise",
+      "rss_url": "https://www.blackenterprise.com/feed/",
+      "category": "business",
+      "priority": 4
+    },
+    {
+      "name": "The TRiiBE",
+      "rss_url": "https://thetriibe.com/feed/",
+      "category": "local",
+      "priority": 4
+    },
+    {
+      "name": "Atlanta Black Star",
+      "rss_url": "https://atlantablackstar.com/feed/",
+      "category": "news",
+      "priority": 3
+    },
+    {
+      "name": "Blavity",
+      "rss_url": "https://blavity.com/feed",
+      "category": "culture",
+      "priority": 2
+    },
+    {
+      "name": "Afro",
+      "rss_url": "https://afro.com/feed/",
+      "category": "news",
+      "priority": 4
+    },
+    {
+      "name": "The Final Call",
+      "rss_url": "https://new.finalcall.com/feed/",
+      "category": "news",
+      "priority": 2
+    }
+  ]
+}
