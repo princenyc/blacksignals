@@ -1,0 +1,22 @@
+{
+  "version": "1.0",
+  "description": "Kagi RSS Inputs for Impact Filtering",
+  "feeds": [
+    {
+      "name": "World",
+      "rss_url": "https://kite.kagi.com/world.xml"
+    },
+    {
+      "name": "Business",
+      "rss_url": "https://kite.kagi.com/business.xml"
+    },
+    {
+      "name": "Technology",
+      "rss_url": "https://kite.kagi.com/technology.xml"
+    },
+    {
+      "name": "US News",
+      "rss_url": "https://kite.kagi.com/us.xml"
+    }
+  ]
+}
