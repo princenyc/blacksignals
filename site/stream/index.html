@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BlackSignals — Stream</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; }
+    h1 { margin: 0 0 8px; }
+    .meta { color: #555; margin-bottom: 16px; }
+    .item { padding: 10px 0; border-bottom: 1px solid #eee; }
+    .title { font-weight: 600; text-decoration: none; }
+    .sub { color: #666; font-size: 13px; margin-top: 4px; }
+    .pill { display:inline-block; padding:2px 8px; border:1px solid #ddd; border-radius:999px; font-size:12px; margin-left:8px; color:#444; }
+    .err { color: #b00020; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>BlackSignals Stream</h1>
+  <div class="meta" id="meta">Loading…</div>
+  <div id="list"></div>
+  <div class="err" id="err"></div>
+
+  <script>
+    // ✅ Your Worker endpoint (engine)
+    const API = "https://blacksignals.princecampbellnyc.workers.dev/api/stream";
+
+    const metaEl = document.getElementById("meta");
+    const listEl = document.getElementById("list");
+    const errEl  = document.getElementById("err");
+
+    function escapeHtml(s) {
+      return (s || "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    async function run() {
+      try {
+        const res = await fetch(API, { cache: "no-store" });
+        if (!res.ok) throw new Error(`API error: ${res.status} ${res.statusText}`);
+        const data = await res.json();
+
+        metaEl.textContent = `Updated: ${data.generated_at} • Window: ${data.window_hours}h • Items: ${data.count}`;
+
+        listEl.innerHTML = (data.items || []).map(it => {
+          const source = escapeHtml(it.source || "");
+          const score = (it.impact_score ?? "");
+          const pill = score !== "" ? `<span class="pill">impact ${score}</span>` : "";
+          return `
+            <div class="item">
+              <a class="title" href="${it.url}" target="_blank" rel="noreferrer noopener">
+                ${escapeHtml(it.title)}
+              </a>${pill}
+              <div class="sub">${source}</div>
+            </div>
+          `;
+        }).join("");
+
+      } catch (e) {
+        errEl.textContent = String(e);
+        metaEl.textContent = "Failed to load.";
+      }
+    }
+
+    run();
+    setInterval(run, 60_000); // refresh every 60s
+  </script>
+</body>
+</html>
