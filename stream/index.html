@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Black Signals — Stream</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #ffffff;
+      color: #111;
+      max-width: 860px;
+      margin: 60px auto;
+      padding: 0 20px;
+      line-height: 1.55;
+    }
+    h1 { font-size: 2.2rem; margin: 0 0 8px; }
+    .sub { color: #444; margin: 0 0 18px; }
+    .bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 18px 0 22px;
+      background: #fafafa;
+    }
+    .left { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .pill {
+      font-size: 12px;
+      border: 1px solid #e6e6e6;
+      border-radius: 999px;
+      padding: 4px 10px;
+      background: #fff;
+      color: #333;
+    }
+    button {
+      border: 1px solid #e6e6e6;
+      background: #fff;
+      border-radius: 10px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    li {
+      padding: 14px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .title {
+      font-size: 1.02rem;
+      margin: 0 0 8px;
+    }
+    a { color: #111; text-decoration: underline; }
+    a:hover { opacity: 0.85; }
+    .meta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: #555;
+      font-size: 13px;
+    }
+    .score {
+      font-weight: 700;
+      color: #111;
+    }
+    .muted { color: #777; }
+    .error {
+      border: 1px solid #ffd7d7;
+      background: #fff5f5;
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: #8a1f1f;
+      margin: 16px 0;
+      display: none;
+    }
+    .footer {
+      margin-top: 26px;
+      color: #666;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Black Signals — Stream</h1>
+  <p class="sub">Headlines filtered by your criteria. Newest first. (Headline • Source • Score)</p>
+
+  <div class="bar">
+    <div class="left">
+      <span class="pill" id="status">Loading…</span>
+      <span class="pill" id="window">Window: —</span>
+      <span class="pill" id="count">Count: —</span>
+      <span class="pill muted" id="generated">Generated: —</span>
+    </div>
+    <div class="right">
+      <button id="refreshBtn">Refresh</button>
+    </div>
+  </div>
+
+  <div class="error" id="errBox"></div>
+
+  <ul id="list"></ul>
+
+  <div class="footer">
+    <a href="/">Back to home</a>
+  </div>
+
+<script>
+  // Use your Worker endpoint (works now). Later we can route this to /api/stream on blacksignals.org.
+  const API_URL = "https://blacksignals.princecampbellnyc.workers.dev/api/stream";
+
+  const elStatus = document.getElementById("status");
+  const elWindow = document.getElementById("window");
+  const elCount = document.getElementById("count");
+  const elGenerated = document.getElementById("generated");
+  const elList = document.getElementById("list");
+  const elErr = document.getElementById("errBox");
+  const btn = document.getElementById("refreshBtn");
+
+  function escapeHtml(s) {
+    return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+
+  function fmtTime(iso) {
+    if (!iso) return "";
+    try {
+      const d = new Date(iso);
+      return d.toLocaleString();
+    } catch {
+      return iso;
+    }
+  }
+
+  function setError(msg) {
+    elErr.style.display = "block";
+    elErr.textContent = msg;
+  }
+
+  function clearError() {
+    elErr.style.display = "none";
+    elErr.textContent = "";
+  }
+
+  async function loadStream() {
+    clearError();
+    btn.disabled = true;
+    elStatus.textContent = "Loading…";
+
+    try {
+      // cache-bust so Refresh really refreshes
+      const res = await fetch(API_URL + "?t=" + Date.now(), { method: "GET" });
+
+      if (!res.ok) {
+        throw new Error("API error: " + res.status + " " + res.statusText);
+      }
+
+      const data = await res.json();
+
+      if (!data || data.ok !== true) {
+        throw new Error("API returned unexpected payload.");
+      }
+
+      const items = Array.isArray(data.items) ? data.items : [];
+
+      elWindow.textContent = "Window: " + (data.window_hours ?? "—") + "h";
+      elCount.textContent = "Count: " + (data.count ?? items.length);
+      elGenerated.textContent = "Generated: " + fmtTime(data.generated_at);
+      elStatus.textContent = "Live";
+
+      elList.innerHTML = items.map(it => {
+        const title = escapeHtml(it.title);
+        const url = escapeHtml(it.url);
+        const source = escapeHtml(it.source);
+        const score = Number.isFinite(it.impact_score) ? it.impact_score : (it.impact_score ?? "");
+        const published = fmtTime(it.published_at);
+
+        return `
+          <li>
+            <p class="title"><a href="${url}" target="_blank" rel="noopener noreferrer">${title}</a></p>
+            <div class="meta">
+              <span>Source: <strong>${source || "—"}</strong></span>
+              <span>Score: <span class="score">${score}</span></span>
+              <span class="muted">${published ? ("Published: " + published) : ""}</span>
+            </div>
+          </li>
+        `;
+      }).join("");
+
+      if (items.length === 0) {
+        elList.innerHTML = `<li class="muted">No items in the current window. (Either nothing published recently, or your filters are strict.)</li>`;
+      }
+
+    } catch (e) {
+      elStatus.textContent = "Error";
+      setError(e.message || String(e));
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  btn.addEventListener("click", loadStream);
+  loadStream();
+</script>
+</body>
+</html>
