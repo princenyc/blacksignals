@@ -1,0 +1,77 @@
+{
+  "version": "1.0",
+  "description": "Black institutional power influence model. Unconditional boost if name OR title+lastname appears. Highest single boost per article only. No stacking.",
+  "max_person_boost_per_article": 300,
+  "match_rules": {
+    "case_insensitive": true,
+    "match_full_name": true,
+    "match_title_lastname": true,
+    "allowed_titles": [
+      "Gov.", "Governor",
+      "Sen.", "Senator",
+      "Rep.", "Representative",
+      "Mayor",
+      "AG", "Attorney General",
+      "Justice",
+      "Chancellor",
+      "President",
+      "CEO"
+    ]
+  },
+  "people": [
+
+    /* ---------------- Tier 1: Governance (300) ---------------- */
+
+    { "name": "Wes Moore", "role": "Governor of Maryland", "boost": 300, "aliases": ["Gov. Wes Moore", "Governor Wes Moore"] },
+    { "name": "Ketanji Brown Jackson", "role": "U.S. Supreme Court Justice", "boost": 300, "aliases": ["Justice Ketanji Brown Jackson"] },
+    { "name": "Cory Booker", "role": "U.S. Senator", "boost": 300, "aliases": ["Sen. Cory Booker"] },
+    { "name": "Raphael Warnock", "role": "U.S. Senator", "boost": 300, "aliases": ["Sen. Raphael Warnock"] },
+    { "name": "Tim Scott", "role": "U.S. Senator", "boost": 300, "aliases": ["Sen. Tim Scott"] },
+    { "name": "Lisa Blunt Rochester", "role": "U.S. Senator", "boost": 300, "aliases": ["Sen. Lisa Blunt Rochester"] },
+    { "name": "Angela Alsobrooks", "role": "U.S. Senator", "boost": 300, "aliases": ["Sen. Angela Alsobrooks"] },
+    { "name": "Letitia James", "role": "Attorney General of New York", "boost": 300, "aliases": ["AG Letitia James", "Attorney General Letitia James"] },
+    { "name": "Andrea Campbell", "role": "Attorney General of Massachusetts", "boost": 300, "aliases": ["AG Andrea Campbell"] },
+    { "name": "Anthony Brown", "role": "Attorney General of Maryland", "boost": 300, "aliases": ["AG Anthony Brown"] },
+    { "name": "Keith Ellison", "role": "Attorney General of Minnesota", "boost": 300, "aliases": ["AG Keith Ellison"] },
+    { "name": "Charity Clark", "role": "Attorney General of Vermont", "boost": 300, "aliases": ["AG Charity Clark"] },
+    { "name": "Shirley Weber", "role": "California Secretary of State", "boost": 300, "aliases": ["Secretary Shirley Weber"] },
+    { "name": "Karen Bass", "role": "Mayor of Los Angeles", "boost": 300, "aliases": ["Mayor Karen Bass"] },
+    { "name": "Brandon Johnson", "role": "Mayor of Chicago", "boost": 300, "aliases": ["Mayor Brandon Johnson"] },
+    { "name": "Cherelle Parker", "role": "Mayor of Philadelphia", "boost": 300, "aliases": ["Mayor Cherelle Parker"] },
+    { "name": "Muriel Bowser", "role": "Mayor of Washington, D.C.", "boost": 300, "aliases": ["Mayor Muriel Bowser"] },
+    { "name": "Andre Dickens", "role": "Mayor of Atlanta", "boost": 300, "aliases": ["Mayor Andre Dickens"] },
+    { "name": "Brandon Scott", "role": "Mayor of Baltimore", "boost": 300, "aliases": ["Mayor Brandon Scott"] },
+    { "name": "Paul Young", "role": "Mayor of Memphis", "boost": 300, "aliases": ["Mayor Paul Young"] },
+    { "name": "Mary Sheffield", "role": "Mayor of Detroit", "boost": 300, "aliases": ["Mayor Mary Sheffield"] },
+    { "name": "London Breed", "role": "Mayor of San Francisco", "boost": 300, "aliases": ["Mayor London Breed"] },
+
+    /* ---------------- Tier 2: Counter-Power (200) ---------------- */
+
+    { "name": "Benjamin Crump", "role": "Civil Rights Attorney", "boost": 200, "aliases": ["Ben Crump"] },
+    { "name": "Derrick Johnson", "role": "President & CEO, NAACP", "boost": 200, "aliases": ["NAACP President Derrick Johnson"] },
+    { "name": "Kristen Clarke", "role": "Assistant Attorney General, Civil Rights Division", "boost": 200, "aliases": ["AAG Kristen Clarke"] },
+    { "name": "Damon Hewitt", "role": "Lawyers' Committee for Civil Rights", "boost": 200, "aliases": [] },
+    { "name": "Hakeem Jeffries", "role": "U.S. House Democratic Leader", "boost": 200, "aliases": ["Rep. Hakeem Jeffries"] },
+
+    /* ---------------- Tier 3: Economic / Institutional (175) ---------------- */
+
+    { "name": "Ursula Burns", "role": "Corporate Executive", "boost": 175, "aliases": [] },
+    { "name": "Darren Walker", "role": "President, Ford Foundation", "boost": 175, "aliases": [] },
+    { "name": "Shalanda Young", "role": "Director, Office of Management and Budget", "boost": 175, "aliases": [] },
+    { "name": "Thasunda Brown Duckett", "role": "CEO, TIAA", "boost": 175, "aliases": [] },
+    { "name": "David Steward", "role": "Founder, World Wide Technology", "boost": 175, "aliases": [] },
+    { "name": "Don Peebles", "role": "Real Estate Developer", "boost": 175, "aliases": [] },
+
+    { "name": "Wayne A. I. Frederick", "role": "Howard University President", "boost": 175, "aliases": ["Wayne Frederick"] },
+    { "name": "Rosalind Brewer", "role": "Spelman College President", "boost": 175, "aliases": ["Roz Brewer"] },
+    { "name": "F. DuBois Bowman", "role": "President, Morehouse College", "boost": 175, "aliases": ["DuBois Bowman"] },
+    { "name": "James R. Martin II", "role": "Chancellor, North Carolina A&T", "boost": 175, "aliases": ["James Martin II"] },
+
+    /* ---------------- Tier 4: Cultural / Narrative (125) ---------------- */
+
+    { "name": "Barack Obama", "role": "Former U.S. President", "boost": 125, "aliases": ["President Obama"] },
+    { "name": "Michelle Obama", "role": "Former First Lady", "boost": 125, "aliases": [] },
+    { "name": "Al Sharpton", "role": "Civil Rights Leader & Media Personality", "boost": 125, "aliases": [] }
+
+  ]
+}
