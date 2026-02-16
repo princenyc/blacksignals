@@ -1,22 +1,26 @@
 {
   "version": "1.0",
-  "description": "Kagi RSS Inputs for Impact Filtering",
+  "description": "AP RSS Inputs",
   "feeds": [
     {
-      "name": "World",
-      "rss_url": "https://kite.kagi.com/world.xml"
+      "name": "AP US News",
+      "rss_url": "https://apnews.com/rss/apf-usnews"
     },
     {
-      "name": "Business",
-      "rss_url": "https://kite.kagi.com/business.xml"
+      "name": "AP World News",
+      "rss_url": "https://apnews.com/rss/apf-worldnews"
     },
     {
-      "name": "Technology",
-      "rss_url": "https://kite.kagi.com/technology.xml"
+      "name": "AP Business",
+      "rss_url": "https://apnews.com/rss/apf-business"
     },
     {
-      "name": "US News",
-      "rss_url": "https://kite.kagi.com/us.xml"
+      "name": "AP Politics",
+      "rss_url": "https://apnews.com/rss/apf-politics"
+    },
+    {
+      "name": "AP Technology",
+      "rss_url": "https://apnews.com/rss/apf-technology"
     }
   ]
 }
