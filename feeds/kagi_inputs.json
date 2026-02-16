@@ -1,26 +1,26 @@
 {
   "version": "1.0",
-  "description": "AP RSS Inputs",
+  "description": "Mainstream RSS Inputs (Worker Safe)",
   "feeds": [
     {
-      "name": "AP US News",
-      "rss_url": "https://apnews.com/rss/apf-usnews"
+      "name": "NPR News",
+      "rss_url": "https://feeds.npr.org/1001/rss.xml"
     },
     {
-      "name": "AP World News",
-      "rss_url": "https://apnews.com/rss/apf-worldnews"
+      "name": "NPR World",
+      "rss_url": "https://feeds.npr.org/1004/rss.xml"
     },
     {
-      "name": "AP Business",
-      "rss_url": "https://apnews.com/rss/apf-business"
+      "name": "CBS US News",
+      "rss_url": "https://www.cbsnews.com/latest/rss/us"
     },
     {
-      "name": "AP Politics",
-      "rss_url": "https://apnews.com/rss/apf-politics"
+      "name": "CBS World News",
+      "rss_url": "https://www.cbsnews.com/latest/rss/world"
     },
     {
-      "name": "AP Technology",
-      "rss_url": "https://apnews.com/rss/apf-technology"
+      "name": "CBS Business",
+      "rss_url": "https://www.cbsnews.com/latest/rss/moneywatch"
     }
   ]
 }
