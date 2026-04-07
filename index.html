@@ -1,371 +1,628 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Black Signals</title>
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: #ffffff;
-      color: #111;
-      max-width: 720px;
-      margin: 60px auto;
-      padding: 0 20px;
-      line-height: 1.55;
-    }
-    h1 {
-      font-size: 2.2rem;
-      margin-bottom: 0.5rem;
-    }
-    .subtitle {
-      color: #444;
-      margin-bottom: 1.5rem;
-    }
-    .definition {
-      font-style: italic;
-      margin-bottom: 0.5rem;
-    }
-    .ordering {
-      color: #555;
-      margin-bottom: 3rem;
-      font-size: 0.95rem;
-    }
-    .signal {
-      margin-bottom: 2.5rem;
-    }
-    .signal h2 {
-      font-size: 1.1rem;
-      margin-bottom: 0.4rem;
-    }
-    .signal p {
-      margin: 0.4rem 0;
-    }
-    .source a {
-      color: #0066cc;
-      text-decoration: none;
-    }
-    .source a:hover {
-      text-decoration: underline;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Black Signals — Consequence Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Libre+Franklin:wght@400;600&family=Courier+Prime&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #d0002a;
+    --chartreuse: #94b23c;
+    --chartreuse-dark: #4a6431;
+    --bottle-cap: #2a1f1a;
+    --deep-wine: #1c0c0f;
+    --off-white: #fff6ee;
+  }
 
-    /* Recommended: small label pill for special entries like Post-Signal Analysis */
-    .tag {
-      display: inline-block;
-      font-size: 0.75rem;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: #555;
-      border: 1px solid #ddd;
-      padding: 2px 8px;
-      border-radius: 999px;
-      margin-bottom: 0.6rem;
-    }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
 
-    .footer {
-      margin-top: 4rem;
-      font-size: 0.9rem;
-      color: #555;
+  body {
+    background: var(--deep-wine);
+    color: var(--off-white);
+    font-family: 'Libre Franklin', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* GRAIN */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid rgba(148,178,60,0.2);
+    position: sticky;
+    top: 0;
+    background: rgba(28,12,15,0.97);
+    backdrop-filter: blur(6px);
+    z-index: 100;
+  }
+
+  .nav-logo {
+    font-family: 'Anton', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    color: var(--chartreuse);
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .nav-parent {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: rgba(255,246,238,0.5);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-parent:hover { color: var(--chartreuse); }
+
+  @media (min-width: 768px) {
+    nav { padding: 1.2rem 2.5rem; }
+    .nav-logo { font-size: 1.1rem; }
+    .nav-parent { font-size: 0.72rem; }
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem 1.2rem 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: 'BS';
+    position: absolute;
+    right: -0.05em;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Anton', sans-serif;
+    font-size: 55vw;
+    color: var(--chartreuse);
+    opacity: 0.03;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    color: var(--chartreuse);
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.1s;
+  }
+
+  .hero-headline {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(3rem, 13vw, 9rem);
+    line-height: 0.92;
+    text-transform: uppercase;
+    color: var(--off-white);
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.25s;
+  }
+
+  .hero-headline span { color: var(--chartreuse); }
+
+  .hero-sub {
+    font-family: 'Libre Franklin', sans-serif;
+    font-size: clamp(0.9rem, 3vw, 1.15rem);
+    color: rgba(255,246,238,0.7);
+    opacity: 0;
+    margin-top: 1.8rem;
+    line-height: 1.65;
+    max-width: 560px;
+    animation: fadeUp 0.7s ease forwards 0.45s;
+  }
+
+  .hero-rule {
+    width: 50px;
+    height: 3px;
+    background: var(--chartreuse);
+    margin-top: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.6s;
+  }
+
+  @media (min-width: 768px) {
+    .hero { min-height: 85vh; padding: 6rem 2.5rem 4rem; }
+    .hero::after { font-size: clamp(18rem, 30vw, 36rem); }
+    .hero-eyebrow { font-size: 0.72rem; margin-bottom: 1.5rem; }
+    .hero-rule { width: 60px; margin-top: 2.5rem; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── WHAT IT IS STRIP ─── */
+  .what-strip {
+    background: var(--bottle-cap);
+    border-top: 1px solid rgba(148,178,60,0.15);
+    border-bottom: 1px solid rgba(148,178,60,0.15);
+    padding: 2rem 1.2rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .what-strip {
+      grid-template-columns: repeat(3, 1fr);
+      padding: 2rem 2.5rem;
     }
-  </style>
+  }
+
+  .what-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .what-item-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--chartreuse-dark);
+  }
+
+  .what-item-text {
+    font-family: 'Libre Franklin', sans-serif;
+    font-size: 0.88rem;
+    color: rgba(255,246,238,0.75);
+    line-height: 1.5;
+  }
+
+  /* ─── SECTIONS ─── */
+  section {
+    padding: 3.5rem 1.2rem;
+  }
+
+  @media (min-width: 768px) {
+    section {
+      padding: 5rem 2.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+  }
+
+  .section-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--chartreuse);
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(148,178,60,0.25);
+  }
+
+  /* ─── SIGNAL CARD ─── */
+  .signal-card {
+    background: var(--bottle-cap);
+    border-left: 4px solid var(--chartreuse);
+    padding: 2rem 1.5rem;
+    position: relative;
+  }
+
+  @media (min-width: 768px) {
+    .signal-card { padding: 3rem; }
+  }
+
+  .signal-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .signal-category {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--chartreuse);
+    background: rgba(148,178,60,0.1);
+    padding: 0.3rem 0.7rem;
+    border: 1px solid rgba(148,178,60,0.2);
+  }
+
+  .signal-date {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    color: rgba(255,246,238,0.35);
+    text-transform: uppercase;
+  }
+
+  .signal-strength {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-left: auto;
+  }
+
+  .signal-title {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    text-transform: uppercase;
+    line-height: 1;
+    color: var(--off-white);
+    margin-bottom: 1.5rem;
+  }
+
+  .signal-block {
+    margin-bottom: 1.2rem;
+  }
+
+  .signal-block-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--chartreuse-dark);
+    margin-bottom: 0.5rem;
+  }
+
+  .signal-block-text {
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: rgba(255,246,238,0.75);
+  }
+
+  .signal-block-text strong {
+    color: var(--off-white);
+    font-weight: 600;
+  }
+
+  .signal-divider {
+    height: 1px;
+    background: rgba(148,178,60,0.1);
+    margin: 1.2rem 0;
+  }
+
+  .signal-redacted {
+    position: relative;
+    margin-top: 1.5rem;
+  }
+
+  .signal-redacted-text {
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: rgba(255,246,238,0.2);
+    filter: blur(4px);
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .signal-redacted-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: rgba(28,12,15,0.7);
+  }
+
+  .signal-redacted-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,246,238,0.4);
+  }
+
+  /* ─── COMING SOON ─── */
+  .coming {
+    background: rgba(208,0,42,0.06);
+    border: 1px solid rgba(208,0,42,0.2);
+    padding: 2rem 1.5rem;
+    text-align: center;
+  }
+
+  @media (min-width: 768px) {
+    .coming { padding: 3rem; }
+  }
+
+  .coming-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 1rem;
+  }
+
+  .coming-title {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    text-transform: uppercase;
+    color: var(--off-white);
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+
+  .coming-desc {
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: rgba(255,246,238,0.6);
+    max-width: 480px;
+    margin: 0 auto 1.8rem;
+  }
+
+  .btn {
+    display: inline-block;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 0.85rem 1.6rem;
+    border: 1px solid var(--chartreuse);
+    color: var(--chartreuse);
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .btn:hover { background: var(--chartreuse); color: var(--deep-wine); }
+
+  .signal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    align-items: center;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .signal-input {
+    width: 100%;
+    background: rgba(28,12,15,0.8);
+    border: 1px solid rgba(148,178,60,0.3);
+    color: var(--off-white);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    padding: 0.75rem 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .signal-input::placeholder { color: rgba(255,246,238,0.3); }
+  .signal-input:focus { border-color: var(--chartreuse); }
+
+  .btn-red {
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .btn-red:hover { background: var(--red); color: var(--off-white); }
+
+  /* ─── SCROLL REVEAL ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+  }
+
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: rgba(148,178,60,0.1);
+    margin: 0 1.2rem;
+  }
+
+  @media (min-width: 768px) { .divider { margin: 0 2.5rem; } }
+
+  /* ─── FOOTER ─── */
+  footer {
+    padding: 2rem 1.2rem;
+    border-top: 1px solid rgba(148,178,60,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    footer {
+      padding: 3rem 2.5rem;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+  }
+
+  .footer-logo {
+    font-family: 'Anton', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.15em;
+    color: var(--chartreuse);
+    text-transform: uppercase;
+  }
+
+  .footer-parent {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: rgba(255,246,238,0.3);
+    text-transform: uppercase;
+  }
+
+  .footer-parent a {
+    color: rgba(148,178,60,0.5);
+    text-decoration: none;
+  }
+
+  .footer-parent a:hover { color: var(--chartreuse); }
+</style>
 </head>
 <body>
 
-  <div style="border:1px solid #ddd;border-radius:10px;padding:14px;background:#fafafa;margin:18px 0;">
-  <strong>Other Tools</strong>
-  <ul style="margin:10px 0 0;padding-left:18px;">
-    <li>
-  <a href="/stream/">Live Headlines Stream</a>
-  <span style="color:#555;">
-    — filtered headlines (source • score • newest first)
-  </span>
-</li>
-    <li>
-      <a href="/stress-test/">Stress Test</a>
-      <span style="color:#555;">
-        — test a claim or headline and get a forced verdict with sources.
-      </span>
-    </li>
-    <li><a href="/mainstream-registry.html">Source Registry & Methodology</a> — how sources are selected, labeled, and conditionally included.</li>
-    <li>
-      <a href="/x-cleanup/">X Risk Reduction</a>
-      <span style="color:#555;">
-        — No automation. No account access. You stay in control — and make the final call.
-      </span>
+<nav>
+  <a href="/" class="nav-logo">Black Signals</a>
+  <a href="https://chartreuseexplosives.com/" class="nav-parent">A Chartreuse Explosives publication</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="hero-eyebrow">Consequence Intelligence &nbsp;/&nbsp; Est. 2025</p>
+  <h1 class="hero-headline">The signal.<br><span>Not the</span><br>noise.</h1>
+  <p class="hero-sub">
+    A signal is a verifiable pattern, shift, or omission that matters more than the headline built around it.
+    Black Signals tracks what moves — framed around impact on Black American economic mobility, institutional access, and political leverage.
   </p>
-      <p style="color:#555;font-size:0.95rem;margin-top:-8px;">
-  These tools are designed to reduce error, overconfidence, and unexamined assumptions.
-</p>
-    </li>
-  </ul>
+  <div class="hero-rule"></div>
 </div>
 
-
-  <h1>Black Signals</h1>
-
-  <div class="subtitle">
-    A lightweight signal aggregator for Black American news, analysis, and perspective.
+<!-- WHAT IT IS STRIP -->
+<div class="what-strip reveal">
+  <div class="what-item">
+    <span class="what-item-label">What it is</span>
+    <span class="what-item-text">Tiered consequence analysis of decisions, policies, and events.</span>
   </div>
-
-  <div class="definition">
-    A signal is a verifiable pattern, shift, or omission that matters more than the headline built around it.
+  <div class="what-item">
+    <span class="what-item-label">Who it's for</span>
+    <span class="what-item-text">People who want to know what actually changed and why it matters.</span>
   </div>
-
-  <div class="ordering">
-    Newest signals appear first.<br />
-    At least one new signal is added daily.
+  <div class="what-item">
+    <span class="what-item-label">What it costs</span>
+    <span class="what-item-text">Full platform pricing at launch. Sample signal below is free.</span>
   </div>
+</div>
 
-  <!-- SIGNALS (newest at top) -->
+<!-- FEATURED SIGNAL -->
+<section class="reveal">
+  <p class="section-label">Sample signal</p>
+  <div class="signal-card">
 
-  <section class="signal">
-
-  <p class="timestamp"><em>Posted: Feb 1, 2026 · Enforcement phase begins</em></p>
-
-  <h3>SNAP / Administrative Enforcement</h3>
-
-  <p>
-    Expanded SNAP work requirements are now being enforced state-by-state,
-    producing a rolling pattern of benefit terminations rather than a one-time policy shock.
-    The shift is operational: eligibility loss is happening through enforcement mechanics,
-    not renewed legislative debate.
-  </p>
-
-  <p><strong>What changed (facts only):</strong><br>
-    A federal law expanding SNAP work requirements—raising age caps, narrowing exemptions,
-    and reducing waiver flexibility—entered active enforcement across additional states as of
-    Feb. 1, 2026. States including Illinois have begun applying the new rules, with reporting
-    that large numbers of recipients face benefit loss as compliance and verification tighten.
-    Federal projections estimate an average monthly SNAP caseload reduction of roughly
-    2.4 million people over the next decade once enforcement fully phases in.
-  </p>
-
-  <p><strong>Why it matters (structural impact on Black Americans):</strong><br>
-    Black households rely on SNAP at significantly higher rates than white households,
-    making them more exposed to enforcement-driven “churn” caused by paperwork failures,
-    unstable work hours, and missed reporting—not job refusal. Because enforcement rolls out
-    unevenly across states, the impact compounds quietly over time, reshaping food access,
-    household stability, and downstream health outcomes.
-  </p>
-
-  <p><strong>What’s missing or being downplayed:</strong><br>
-    Coverage often frames the change as a debate about “work requirements” while minimizing
-    the actual mechanism of loss: administrative friction and verification failure. The racial
-    distribution of SNAP reliance—and therefore exposure to enforcement churn—is rarely
-    foregrounded, despite well-documented disparities.
-  </p>
-
-  <p><strong>Signal Strength:</strong> 4 / 5 — Structural Shift</p>
-
-  <p><strong>Confidence Notes:</strong><br>
-    Confidence would increase with public, state-level dashboards showing reasons for SNAP
-    closures over time (work-rule noncompliance vs. paperwork vs. other causes), ideally
-    disaggregated by geography and demographics. The signal would weaken if early-enforcing
-    states show minimal net losses after full exemption and compliance processing.
-  </p>
-
-  <p><strong>Sources:</strong><br>
-  <a href="https://apnews.com/article/4e9016f6919a603cb7d35b9c9fcb9048" target="_blank" rel="noopener">AP News</a><br>
-  <a href="https://www.fns.usda.gov/snap/obbb-abawd-exemptions-implementation" target="_blank" rel="noopener">USDA FNS: SNAP work requirements implementation</a><br>
-  <a href="https://www.pewresearch.org/short-reads/2025/11/14/what-the-data-says-about-food-stamps-in-the-us/" target="_blank" rel="noopener">Pew Research Center: Food stamps data</a><br>
-  <a href="https://abc7ny.com/post/new-snap-work-requirements-set-go-effect-feb-1-millions-risk-losing-benefits/18510008/" target="_blank" rel="noopener">ABC7NY: SNAP work requirements Feb 1</a>
-</p>
+    <div class="signal-meta">
+      <span class="signal-category">Economy / Policy</span>
+      <span class="signal-date">Feb 1, 2026</span>
+      <span class="signal-strength">Signal Strength: 4/5 — Structural Shift</span>
     </div>
 
+    <h2 class="signal-title">SNAP / Administrative Enforcement</h2>
 
+    <div class="signal-block">
+      <p class="signal-block-label">What changed</p>
+      <p class="signal-block-text">
+        A federal law expanding SNAP work requirements — raising age caps, narrowing exemptions, and reducing waiver flexibility — entered active enforcement across additional states as of Feb. 1, 2026. States including Illinois have begun applying the new rules. Federal projections estimate an average monthly SNAP caseload reduction of roughly <strong>2.4 million people</strong> over the next decade once enforcement fully phases in.
+      </p>
+    </div>
 
-  <div class="signal">
-  <h2>Protest / Federal Enforcement</h2>
-  <p>
-    Thousands of anti-ICE protesters took to U.S. streets today in coordinated actions across major cities, including Minneapolis, New York, and Los Angeles,
-    framing federal immigration enforcement as a matter of systemic abuse and demanding accountability and reform. These nationally linked demonstrations show Black and allied community mobilization against federal force, not isolated local upset.
-  </p>
-  <p class="source">
-    Source:
-    <a href="https://www.theguardian.com/us-news/2026/jan/30/ice-protests-friday-strike" target="_blank">The Guardian</a>,
-    <a href="https://www.theguardian.com/us-news/2026/jan/31/anti-ice-protests-weekend" target="_blank">The Guardian: Anti-ICE protests >300 planned</a>
-  </p>
-</div>
+    <div class="signal-divider"></div>
 
+    <div class="signal-block">
+      <p class="signal-block-label">Why it matters</p>
+      <p class="signal-block-text">
+        Black households rely on SNAP at significantly higher rates than white households, making them more exposed to enforcement-driven "churn" caused by paperwork failures, unstable work hours, and missed reporting — not job refusal. Because enforcement rolls out unevenly across states, the impact compounds quietly over time, reshaping food access, household stability, and downstream health outcomes.
+      </p>
+    </div>
 
-  <div class="signal">
-  <h2>Protest / Politics</h2>
-  <p>
-    Black student unions and allied groups are part of coordinated nationwide “National Shutdown” actions today (Jan. 30), calling for no work, no school, no shopping, and protests against ICE enforcement after fatal federal actions in Minneapolis.
-    This reflects Black-led and allied coalition pressure extending local resistance into broad economic and civic disruption.
-  </p>
-  <p class="source">
-    Source:
-    <a href="https://www.reuters.com/world/us/nationwide-protests-walkouts-planned-over-fatal-ice-shootings-minneapolis-2026-01-30/" target="_blank">Reuters</a>,
-    <a href="https://NationalShutdown.org" target="_blank">National Shutdown official site</a>,
-    <a href="https://en.wikipedia.org/wiki/2026_Minnesota_general_strike" target="_blank">Wikipedia: 2026 Minnesota general strike coalition</a>
-  </p>
-</div>
+    <div class="signal-divider"></div>
 
+    <div class="signal-block">
+      <p class="signal-block-label">What's being downplayed</p>
+      <p class="signal-block-text">
+        Coverage often frames the change as a debate about "work requirements" while minimizing the actual mechanism of loss: <strong>administrative friction and verification failure.</strong> The racial distribution of SNAP reliance — and therefore exposure — is rarely foregrounded despite well-documented disparities.
+      </p>
+    </div>
 
-  <div class="signal">
-  <h2>Power / Enforcement</h2>
-  <p>
-    Anti-ICE protests and coordinated walkouts are spreading nationally following fatal federal enforcement actions.
-    The shift from isolated demonstrations to planned, multi-city labor and protest actions signals growing pressure on the legitimacy of immigration enforcement tactics.
-  </p>
-  <p class="source">
-    Source:
-    <a href="https://www.reuters.com/world/us/nationwide-protests-walkouts-planned-over-fatal-ice-shootings-minneapolis-2026-01-30/" target="_blank">Reuters</a>,
-    <a href="https://en.wikipedia.org/wiki/2026_Anti-ICE_Protests_in_the_United_States" target="_blank">Wikipedia overview</a>
-  </p>
-</div>
+    <div class="signal-divider"></div>
 
-
-  <div class="signal">
-  <div class="tag">Post-Signal Analysis</div>
-  <h2>Power / Constitution</h2>
-
-  <p>
-    <strong>Context:</strong> In the aftermath of the Alex Pretti case, debate has focused on whether federal responses represent a threat
-    to constitutional rights. The more relevant pattern is how those rights are being treated in practice during enforcement actions.
-  </p>
-
-  <p>
-    <strong>Rights are deprioritized, not repealed.</strong>
-    Constitutional protections remain formally intact, but enforcement practices increasingly treat them as secondary once
-    operational risk is asserted.
-  </p>
-
-  <p>
-    <strong>The First Amendment becomes conditional.</strong>
-    Protest activity and public documentation are reframed as potential threat vectors rather than presumptively protected speech and assembly.
-  </p>
-
-  <p>
-    <strong>The Second Amendment is contextualized as risk.</strong>
-    Lawful firearm possession is emphasized as justification for escalation rather than treated as a neutral legal fact.
-  </p>
-
-  <p>
-    <strong>The Fourth Amendment absorbs the pressure.</strong>
-    Broad interpretations of “perceived threat” expand acceptable use of force, weakening practical constraints on seizure and lethal action.
-  </p>
-
-  <p>
-    <strong>Precedent shifts through practice, not law.</strong>
-    Each incident widens the set of scenarios where constitutional rights are treated as non-determinative without formal challenge.
-  </p>
-
-  <p>
-    <strong>The signal is structural, not partisan.</strong>
-    This reflects institutional risk management and liability containment, not a declared ideological assault on the Constitution.
-  </p>
-
-  <p class="source">
-    Source:
-    <a href="https://www.reuters.com/world/us/evidence-contradicts-trump-immigration-officials-accounts-violent-encounters-2026-01-27/"
-       target="_blank" rel="noopener noreferrer">Reuters investigation</a>,
-    <a href="https://en.wikipedia.org/wiki/Killing_of_Alex_Pretti"
-       target="_blank" rel="noopener noreferrer">Case background</a>,
-    <a href="https://www.theguardian.com/us-news/2026/jan/24/alex-pretti-minneapolis-minnesota-shooting"
-       target="_blank" rel="noopener noreferrer">Use-of-force analysis</a>,
-    <a href="https://www.washingtonpost.com/national-security/2026/01/26/minneapolis-body-camera-court-hearings-pretti-shooting/"
-       target="_blank" rel="noopener noreferrer">Accountability & body-cam reporting</a>
-  </p>
-</div>
-
-
-  <div class="signal">
-    <div class="tag">Post-Signal Analysis</div>
-    <h2>Power / Institutions</h2>
-
-    <p>
-      <strong>Context:</strong> Following the killing of Alex Pretti by federal agents, public attention is shifting from disputed facts
-      to how institutions absorb, reframe, and move past lethal incidents.
-    </p>
-
-    <p>
-      <strong>Facts freeze. Frames harden.</strong> Once evidence stops changing, institutions lock in a version of events they can survive. Durability outweighs accuracy.
-    </p>
-    <p>
-      <strong>Delay is the release valve.</strong> Investigations stretch timelines, diffuse responsibility, and convert urgency into process.
-    </p>
-    <p>
-      <strong>Repetition beats accuracy.</strong> The details that get repeated become “common knowledge.” Others quietly disappear.
-    </p>
-    <p>
-      <strong>Policy adapts without credit.</strong> Small internal changes follow—no attribution, no admission. Power learns silently.
-    </p>
-    <p>
-      <strong>Precedent replaces debate.</strong> The incident stops being argued and starts being referenced. Once normalized, it no longer needs defending.
-    </p>
-    <p>
-      <strong>Exhaustion does the cleanup.</strong> Attention fades not because the issue is resolved, but because attention is finite.
-    </p>
-    <p>
-      <strong>The real audience is institutional.</strong> The signal absorbed isn’t moral—it’s operational: <em>this level of force is manageable.</em>
-    </p>
-
-    <p class="source">
-      Source:
-      <a href="https://www.pbs.org/newshour/" target="_blank" rel="noopener noreferrer">PBS NewsHour reporting</a>,
-      <a href="https://www.mprnews.org/" target="_blank" rel="noopener noreferrer">MPR News</a>,
-      <a href="https://abcnews.go.com/" target="_blank" rel="noopener noreferrer">ABC News</a>
-    </p>
-  </div>
-
-  <div class="signal">
-    <h2>Media / Culture</h2>
-    <p>
-      Major platforms continue removing DEI language from public-facing creator policies without altering enforcement systems.
-      The signal is reputational risk management, not ideological reversal.
-    </p>
-    <p class="source">
-      Source:
-      <a href="https://transparency.meta.com" target="_blank" rel="noopener noreferrer">Meta Transparency</a>,
-      <a href="https://support.google.com/youtube/answer/9288567" target="_blank" rel="noopener noreferrer">YouTube Policy Updates</a>
-    </p>
-  </div>
-
-  <div class="signal">
-    <h2>Economy / Labor</h2>
-    <p>
-      January 2026 labor data shows Black unemployment rising while overall employment remains relatively flat.
-      When divergence appears before recession language, it usually marks where pressure is being absorbed first.
-    </p>
-    <p class="source">
-      Source:
-      <a href="https://www.bls.gov/news.release/empsit.htm" target="_blank" rel="noopener noreferrer">BLS Employment Situation</a>,
-      <a href="https://www.bls.gov/web/empsit/cpsee_e16.htm" target="_blank" rel="noopener noreferrer">BLS by Race</a>
-    </p>
-  </div>
-
-  <div class="signal">
-    <h2>Power / Politics</h2>
-    <p>
-      Democratic leadership quietly deprioritizes voting-rights legislation in early 2026 strategy planning.
-      This reflects resource reallocation, not rhetorical drift.
-    </p>
-    <p class="source">
-      Source:
-      <a href="https://democrats.house.gov" target="_blank" rel="noopener noreferrer">House Democratic Caucus</a>,
-      <a href="https://www.democrats.senate.gov" target="_blank" rel="noopener noreferrer">Senate Democrats</a>
-    </p>
-  </div>
-
-  <div class="footer">
-    Comments will be allowed soon. Signals invite interpretation, not endless argument. Say something new or move on.
-    <br /><br />
-    Black Signals is a Chartreuse Explosives project.<br /><br />
-
-   <div style="border:1px solid #ddd;border-radius:10px;padding:14px;background:#fafafa;margin:18px 0;">
-  <strong>Tools</strong>
-  <ul style="margin:10px 0 0;padding-left:18px;">
-    <li><a href="/stress-test/">Stress Test</a> <span style="color:#555;">— paste a claim, get a forced verdict with sources.</span></li>
-    <li><a href="/x-cleanup/">X Risk Reduction</a> <span style="color:#555;">— reduce your X history risk fast (no automation).</span></li>
-  </ul>
-</div>
+    <!-- REDACTED / BLURRED SECTION -->
+    <div class="signal-redacted">
+      <div class="signal-redacted-text">
+        <p>Confidence would increase with public, state-level dashboards showing reasons for SNAP closures over time. The tiered consequence breakdown across first, second, and third-order impacts shows compounding exposure across three distinct population segments. Class-segment exposure analysis and scenario probability matrix available in full signal report.</p>
+        <p style="margin-top:1rem;">First-order impact: immediate benefit loss among 340,000–480,000 Black SNAP recipients in early-enforcing states. Second-order: downstream health and housing instability over 6–18 months. Third-order: municipal budget pressure as hospital and shelter systems absorb unreported need.</p>
+      </div>
+      <div class="signal-redacted-overlay">
+        <span class="signal-redacted-label">// Full analysis — platform launch</span>
+        <form action="https://formspree.io/f/xwvwygkn" method="POST" class="signal-form">
+          <input type="email" name="email" placeholder="your@email.com" required class="signal-input">
+          <button type="submit" class="btn">Notify me at launch</button>
+        </form>
+      </div>
+    </div>
 
   </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- COMING SOON -->
+<section class="reveal">
+  <div class="coming">
+    <p class="coming-label">// Platform status: Deployment pending</p>
+    <h2 class="coming-title">Full platform<br>coming soon.</h2>
+    <p class="coming-desc">
+      Daily signals. Tiered consequence analysis. First, second, and third-order impact breakdowns. Class-segment exposure. Scenario probabilities. All of it framed around what actually moves for Black Americans.
+    </p>
+    <a href="https://chartreuseexplosives.com/" class="btn btn-red">Back to Chartreuse Explosives &rarr;</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="reveal">
+  <span class="footer-logo">Black Signals</span>
+  <span class="footer-parent">
+    A <a href="https://chartreuseexplosives.com/">Chartreuse Explosives</a> publication &nbsp;/&nbsp; &copy; 2025–2026
+  </span>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
 
 </body>
 </html>
-
