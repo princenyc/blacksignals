@@ -496,6 +496,76 @@
 
   .footer-parent a:hover { color: var(--chartreuse); }
 </style>
+<!-- 
+  BLACKSIGNALS — SCHEMA JSON-LD
+  Place this block in the <head> of blacksignals.org
+  before the closing </head> tag.
+-->
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": ["Organization", "NewsMediaOrganization"],
+      "@id": "https://blacksignals.org/#organization",
+      "name": "BlackSignals",
+      "alternateName": "Black Signals",
+      "url": "https://blacksignals.org/",
+      "logo": "https://chartreuseexplosives.com/logo.png",
+      "foundingDate": "2025",
+      "description": "BlackSignals is a consequence intelligence publishing platform tracking verifiable patterns, shifts, and omissions in news and policy — framed around impact on Black American economic mobility, institutional access, and political leverage.",
+      "parentOrganization": {
+        "@id": "https://chartreuseexplosives.com/#organization"
+      },
+      "founder": {
+        "@id": "https://chartreuseexplosives.com/#prince-campbell"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "New York",
+        "addressRegion": "NY",
+        "addressCountry": "US"
+      },
+      "knowsAbout": [
+        "Consequence Intelligence",
+        "Black American Economic Mobility",
+        "Policy Analysis",
+        "Institutional Access",
+        "Political Leverage",
+        "Signal Analysis"
+      ],
+      "sameAs": [
+        "https://chartreuseexplosives.com/"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://blacksignals.org/#website",
+      "url": "https://blacksignals.org/",
+      "name": "BlackSignals",
+      "description": "Consequence intelligence framed around impact on Black American economic mobility, institutional access, and political leverage.",
+      "publisher": {
+        "@id": "https://blacksignals.org/#organization"
+      },
+      "inLanguage": "en-US"
+    },
+    {
+      "@type": "Publication",
+      "name": "BlackSignals",
+      "url": "https://blacksignals.org/",
+      "publisher": {
+        "@id": "https://blacksignals.org/#organization"
+      },
+      "description": "A consequence intelligence publication tracking verifiable patterns and structural shifts that matter more than the headlines built around them.",
+      "inLanguage": "en-US",
+      "isPartOf": {
+        "@id": "https://chartreuseexplosives.com/#organization"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
