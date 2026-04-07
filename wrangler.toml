@@ -1,4 +1,4 @@
-name = "blacksignals-stream"
+name = "blacksignals"
 main = "worker/index.js"
 compatibility_date = "2025-01-01"
 
